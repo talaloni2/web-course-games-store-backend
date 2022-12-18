@@ -1,12 +1,13 @@
 const upload = require("../middleware/upload");
 const dbConfig = require("../config/db");
+const serverConfig = require("../config/server");
 
 const MongoClient = require("mongodb").MongoClient;
 const GridFSBucket = require("mongodb").GridFSBucket;
 
 const url = dbConfig.url;
 
-const baseUrl = "http://localhost:8080/files/";
+const baseUrl = `http://localhost:${serverConfig.port}/files/`;
 
 const mongoClient = new MongoClient(url);
 
@@ -40,13 +41,13 @@ const getListFiles = async (req, res) => {
     const database = mongoClient.db(dbConfig.database);
     const images = database.collection(dbConfig.imgBucket + ".files");
 
-    const cursor = images.find({});
-
-    if ((await cursor.count()) === 0) {
+    if ((await images.estimatedDocumentCount()) === 0) {
       return res.status(500).send({
         message: "No files found!",
       });
     }
+
+    const cursor = images.find({});
 
     let fileInfos = [];
     await cursor.forEach((doc) => {
