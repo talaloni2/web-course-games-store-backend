@@ -22,9 +22,16 @@ const insertPlatforms = async () => {
         .map(p => { return { _id: p.id, ...p }; })
     await Platform.insertMany(platforms);
 }
+
+const getRandomInt = (min, max) => {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min) + min);
+}
+
 const insertGames = async () => {
     const games = JSON.parse(fs.readFileSync("/Users/talaloni/PycharmProjects/colman/web-course-games-api-scraper/scraped_data/games.json"), "utf-8")
-        .map(g => { return { _id: g.id, ...g }; })
+        .map(g => { return { _id: g.id, price: getRandomInt(10, 60) + 0.99, availability: getRandomInt(3, 20), ...g }; });
     await Game.insertMany(games);
 }
 

@@ -13,7 +13,9 @@ const gameSchema = new mongoose.Schema({
     slug: String,
     summary: String,
     cover: Number,
-    alternative_names: [String]
+    alternative_names: [String],
+    price: Number,
+    availability: Number,
 }, { _id: false })
 
 const Game = mongoose.model('games', gameSchema);
