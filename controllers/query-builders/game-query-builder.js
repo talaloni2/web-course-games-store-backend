@@ -1,4 +1,4 @@
-const { filterUndefined, contains, between } = require("../../utils/request-builder");
+const { filterUndefined, contains, between, sort } = require("../../utils/request-builder");
 
 
 const buildGameListQuery = (params) => {
@@ -11,7 +11,19 @@ const buildGameListQuery = (params) => {
     return filterUndefined(search);
 }
 
+const buildGameListSort = (sortFields) => {
+    let sortRequest = sort(sortFields);
+    sortRequest = {
+        _id: sortRequest.id,
+        name: sortRequest.name,
+        price: sortRequest.price,
+        availability: sortRequest.availability,
+    };
+    return filterUndefined(sortRequest);
+}
+
 
 module.exports = {
     buildGameListQuery,
+    buildGameListSort,
 }
