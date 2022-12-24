@@ -8,6 +8,7 @@ let routes = app => {
   app.get("/files", uploadController.getListFiles);
   app.get("/files/:name", uploadController.download);
   app.get("/games", gamesController.gamesList);
+  app.get("/games/:id", gamesController.singleGame);
 
 };
 
