@@ -1,15 +1,11 @@
 const upload = require("../middleware/upload");
-const dbConfig = require("../config/db");
+const dbConfig = require("../config/db")
+const { database } = require("../middleware/db");
 const serverConfig = require("../config/server");
 
-const MongoClient = require("mongodb").MongoClient;
 const GridFSBucket = require("mongodb").GridFSBucket;
 
-const url = dbConfig.url;
-
-const baseUrl = `http://localhost:${serverConfig.port}/files/`;
-
-const mongoClient = new MongoClient(url);
+const baseUrl = serverConfig.filesURL;
 
 const uploadFiles = async (req, res) => {
   try {
@@ -36,9 +32,7 @@ const uploadFiles = async (req, res) => {
 
 const getListFiles = async (req, res) => {
   try {
-    await mongoClient.connect();
 
-    const database = mongoClient.db(dbConfig.database);
     const images = database.collection(dbConfig.imgBucket + ".files");
 
     if ((await images.estimatedDocumentCount()) === 0) {
@@ -67,9 +61,7 @@ const getListFiles = async (req, res) => {
 
 const download = async (req, res) => {
   try {
-    await mongoClient.connect();
 
-    const database = mongoClient.db(dbConfig.database);
     const bucket = new GridFSBucket(database, {
       bucketName: dbConfig.imgBucket,
     });
