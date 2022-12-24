@@ -6,32 +6,10 @@ const Game = require('./models/game');
 const GameCollection = require('./models/game-collection');
 const Platform = require('./models/platform');
 
-const MongoClient = require("mongodb").MongoClient;
 const GridFSBucket = require("mongodb").GridFSBucket;
 
 const url = dbConfig.url;
 const databaseName = dbConfig.database;
-
-const mongoClient = new MongoClient(url);
-
-mongoClient.connect().then(async () => {
-
-    const database = mongoClient.db(databaseName);
-    const bucket = new GridFSBucket(database, {
-        bucketName: dbConfig.imgBucket,
-    });
-
-    const scrapedDataDir = "/Users/talaloni/PycharmProjects/colman/web-course-games-api-scraper/scraped_data/images";
-    let fileNames = fs.readdirSync(scrapedDataDir);
-
-    await Promise.allSettled(fileNames.map(async (fileName) => {
-        const fullPath = path.join(scrapedDataDir, fileName);
-        if (!fileName.endsWith(".jpg")) {
-            return;
-        }
-        return new Promise((resolve, reject) => fs.createReadStream(fullPath).pipe(bucket.openUploadStream(fileName)).on("finish", resolve));
-    }));
-}).then(() => mongoClient.close());
 
 mongoose.connect(url + databaseName, { useNewUrlParser: true })
     .then(() => {
@@ -56,10 +34,29 @@ const insertCollections = async () => {
     await GameCollection.create(gameCollections);
 }
 
-const performInserts = async() => {
+const insertImages = async () => {
+    const database = mongoose.connection;
+    const bucket = new GridFSBucket(database, {
+        bucketName: dbConfig.imgBucket,
+    });
+
+    const scrapedDataDir = "/Users/talaloni/PycharmProjects/colman/web-course-games-api-scraper/scraped_data/images";
+    let fileNames = fs.readdirSync(scrapedDataDir);
+
+    await Promise.allSettled(fileNames.map(async (fileName) => {
+        const fullPath = path.join(scrapedDataDir, fileName);
+        if (!fileName.endsWith(".jpg")) {
+            return;
+        }
+        return new Promise((resolve, reject) => fs.createReadStream(fullPath).pipe(bucket.openUploadStream(fileName)).on("finish", resolve));
+    }));
+}
+
+const performInserts = async () => {
     await insertPlatforms();
     await insertGames();
     await insertCollections();
+    await insertImages();
 }
 
 performInserts().then(() => mongoose.connection.close());
