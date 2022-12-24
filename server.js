@@ -3,6 +3,7 @@ const express = require("express");
 const app = express();
 const initRoutes = require("./routes");
 const serverConfig = require("./config/server");
+require("./middleware/db"); // initializing db on server startup
 
 const corsOptions = {
   origin: '*',
