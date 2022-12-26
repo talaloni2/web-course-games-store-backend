@@ -16,6 +16,7 @@ const mapToGamesList = (games) => {
             id: game._id,
             price: game.price,
             availability: game.availability,
+            platforms: game.platforms,
         }
     });
 }

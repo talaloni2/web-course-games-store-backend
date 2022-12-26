@@ -1,4 +1,4 @@
-const { filterUndefined, contains, between, sort } = require("../../utils/request-builder");
+const { filterUndefined, contains, between, sort, listContainseOneOrMore } = require("../../utils/request-builder");
 
 
 const buildGameListQuery = (params) => {
@@ -7,6 +7,7 @@ const buildGameListQuery = (params) => {
         name: contains(params.name),
         price: between(params.priceMin, params.priceMax),
         availability: between(params.availabilityMin, params.availabilityMax),
+        $or: listContainseOneOrMore(params.platforms, "platforms"),
     };
     return filterUndefined(search);
 }
