@@ -37,7 +37,7 @@ const routes = (app: Express) => {
   app.get("/platforms", platformsList);
   app.get("/platforms/:id", singlePlatform);
   app.post("/platforms", jsonParser, addPlatform);
-  app.post("/platforms/:id/cover", attachPlatformLogo);
+  app.post("/platforms/:id/logo", attachPlatformLogo);
   app.put("/platforms/:id", jsonParser, updatePlatform);
   app.delete("/platforms/:id", deletePlatform);
 };
