@@ -1,31 +1,30 @@
-const Game = require("../models/game");
-const Platform = require("../models/platform");
-const gamesMapper = require("./dto-mappers/game-mapper");
-const { buildGameListQuery, buildGameListSort } = require("./query-builders/game-query-builder");
-const dbConfig = require("../config/db");
-const { database } = require("../middleware/db");
-const uploadImage = require("../middleware/upload");
+import {Game, IGame} from "../models/game";
+import {Platform} from "../models/platform";
+import { mapToGamesListResponse, mapToSingleGameResponse, mapToDbGame, mapToDbGameUpdate } from "./dto-mappers/game-mapper";
+import { buildGameListQuery, buildGameListSort } from "./query-builders/game-query-builder";
+import uploadImage from "../middleware/upload";
+import { Request, Response } from "express";
+import IGameUserSearchRequest from "../interfaces/IGameUserSearchRequest";
 
-
-const gamesList = async (req, res) => {
+const gamesList = async (req: Request<{}, {}, {}, IGameUserSearchRequest>, res: Response) => {
     const search = buildGameListQuery(req.query)
     let games = await Game.find(search).sort(buildGameListSort(req.query.sort));
-    games = gamesMapper.mapToGamesListResponse(games);
+    games = mapToGamesListResponse(games);
     res.json(games);
 }
 
-const singleGame = async (req, res) => {
+const singleGame = async (req: Request, res: Response) => {
     const game = await Game.findById(req.params.id);
     if (game === null) {
         res.sendStatus(404);
         return;
     }
     let platforms = await Platform.find({ _id: game.platforms })
-    const gameResponse = gamesMapper.mapToSingleGameResponse(game, platforms);
+    const gameResponse = mapToSingleGameResponse(game, platforms);
     res.json(gameResponse);
 }
 
-const addGame = async (req, res) => {
+const addGame = async (req: Request, res: Response) => {
 
     const gameWithSameName = await Game.findOne({name: req.body.name});
     if (gameWithSameName !== null) {
@@ -36,7 +35,7 @@ const addGame = async (req, res) => {
     const gameWithLargestId = await Game.find({}).sort({ _id: -1 }).limit(1);
     const currentId = gameWithLargestId.at(0)._id + 1;
 
-    let createdGame = gamesMapper.mapToDbGame(req.body, currentId);
+    let createdGame = mapToDbGame(req.body, currentId);
 
     const requestedPlatforms = createdGame.platforms;
     let platforms = await Platform.find({ _id: { $in: requestedPlatforms } });
@@ -50,7 +49,7 @@ const addGame = async (req, res) => {
     return res.json({ id: game._id });
 }
 
-const attachCover = async (req, res) => {
+const attachCover = async (req: Request, res: Response) => {
     try {
         var game = await Game.findById(req.params.id);
         if (game === null) {
@@ -76,7 +75,7 @@ const attachCover = async (req, res) => {
     }
 }
 
-const attachScreenshot = async (req, res) => {
+const attachScreenshot = async (req: Request, res: Response) => {
     try {
         var game = await Game.findById(req.params.id);
         if (game === null) {
@@ -103,7 +102,7 @@ const attachScreenshot = async (req, res) => {
     }
 }
 
-const updateGame = async (req, res) => {
+const updateGame = async (req: Request, res: Response) => {
 
     const gameWithSameName = await Game.findOne({name: req.body.name, _id: {$ne: req.params.id}});
     if (gameWithSameName !== null) {
@@ -116,7 +115,7 @@ const updateGame = async (req, res) => {
         return res.sendStatus(404);
     }
 
-    var updatedFields = gamesMapper.mapToDbGameUpdate(req.body);
+    var updatedFields = mapToDbGameUpdate(req.body);
     Object.assign(gameToUpdate, updatedFields);
 
     const requestedPlatforms = gameToUpdate.platforms;
@@ -130,7 +129,7 @@ const updateGame = async (req, res) => {
     return res.json({ id: game._id });
 }
 
-const deleteGame = async (req, res) => {
+const deleteGame = async (req: Request, res: Response) => {
     var gameToDelete = await Game.findById(req.params.id);
     if (gameToDelete === null){
         return res.sendStatus(404);
@@ -140,7 +139,7 @@ const deleteGame = async (req, res) => {
     return res.sendStatus(200);
 }
 
-module.exports = {
+export default {
     gamesList,
     singleGame,
     addGame,

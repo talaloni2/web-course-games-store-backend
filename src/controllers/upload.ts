@@ -1,13 +1,14 @@
-const upload = require("../middleware/upload");
-const dbConfig = require("../config/db")
-const { database } = require("../middleware/db");
-const serverConfig = require("../config/server");
+import upload from "../middleware/upload";
+import dbconfig from "../config/db";
+import { database } from "../middleware/db";
+import { filesURL } from "../config/server";
 
-const GridFSBucket = require("mongodb").GridFSBucket;
+import { GridFSBucket } from "mongodb";
+import { Request, Response } from "express";
 
-const baseUrl = serverConfig.filesURL;
+const baseUrl = filesURL;
 
-const uploadFiles = async (req, res) => {
+const uploadFiles = async (req: Request, res: Response) => {
   try {
     await upload(req, res);
     console.log(req.file);
@@ -30,10 +31,9 @@ const uploadFiles = async (req, res) => {
   }
 };
 
-const getListFiles = async (req, res) => {
+const getListFiles = async (req: Request, res: Response) => {
   try {
-
-    const images = database.collection(dbConfig.imgBucket + ".files");
+    const images = database.collection(dbconfig.imgBucket + ".files");
 
     if ((await images.estimatedDocumentCount()) === 0) {
       return res.status(500).send({
@@ -59,11 +59,10 @@ const getListFiles = async (req, res) => {
   }
 };
 
-const download = async (req, res) => {
+const download = async (req: Request, res: Response) => {
   try {
-
-    const bucket = new GridFSBucket(database, {
-      bucketName: dbConfig.imgBucket,
+    const bucket = new GridFSBucket(database.db, {
+      bucketName: dbconfig.imgBucket,
     });
 
     let downloadStream = bucket.openDownloadStreamByName(req.params.name);
@@ -86,7 +85,7 @@ const download = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   uploadFiles,
   getListFiles,
   download,

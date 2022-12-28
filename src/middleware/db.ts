@@ -1,14 +1,15 @@
-const { default: mongoose } = require("mongoose");
-const dbConfig = require("../config/db");
+import mongoose from "mongoose";
+import dbConfig from "../config/db";
 
 const url = dbConfig.url;
 const databaseName = dbConfig.database;
 
-mongoose.connect(url + databaseName, { useNewUrlParser: true })
+mongoose.connect(url + databaseName)
     .then(() => {
         console.log("mongo connection open!!");
     }).catch(err => {
         console.log("no connection start");
     })
 
-module.exports = {database: mongoose.connection}
+const database: mongoose.Connection = mongoose.connection;
+export {database};
