@@ -5,8 +5,6 @@ interface IGameCollection {
     _id: number,
     name: string,
     games: number[],
-    slug: string,
-    platform_logo: string,
 }
 const gameCollectionSchema = new mongoose.Schema<IGameCollection>(
   {
@@ -16,8 +14,6 @@ const gameCollectionSchema = new mongoose.Schema<IGameCollection>(
       require: true,
     },
     games: [{ type: Number, ref: "Game" }],
-    slug: String,
-    platform_logo: Number,
   },
   { _id: false }
 );

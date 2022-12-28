@@ -1,16 +1,9 @@
-import { filesURL } from "../../config/server";
-import ICreateGameRequest from "../../interfaces/ICreateGameRequest";
-import IUpdateGameRequest from "../../interfaces/IUpdateGameRequest";
+import ICreateGameRequest from "../../interfaces/games/ICreateGameRequest";
+import IUpdateGameRequest from "../../interfaces/games/IUpdateGameRequest";
 import {IGame} from "../../models/game";
 import { IPlatform } from "../../models/platform";
 import { filterUndefined } from "../../utils/request-builder";
-
-let imagesUrl = filesURL;
-
-const getImageUrlIfExists = (imageId: string) => {
-    if (imageId === null || imageId === undefined) return null;
-    return `${imagesUrl}${imageId}`;
-}
+import { getImageUrlIfExists } from "./utils";
 
 const mapToGamesListResponse = (games: IGame[]) => {
     return games.map(game => {

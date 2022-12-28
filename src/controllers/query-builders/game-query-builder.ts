@@ -1,5 +1,5 @@
 import { SortOrder } from "mongoose";
-import IGameUserSearchRequest from "../../interfaces/IGameUserSearchRequest";
+import IGameUserSearchRequest from "../../interfaces/games/IGameUserSearchRequest";
 import {
   filterUndefined,
   contains,

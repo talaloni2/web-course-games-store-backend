@@ -1,5 +1,5 @@
-import IGameSortRequest from "../interfaces/IGameSortRequest";
-import IGameSortUserRequest from "../interfaces/IGameSortUserRequest";
+import IGameSortRequest from "../interfaces/games/IGameSortRequest";
+import IGameSortUserRequest from "../interfaces/games/IGameSortUserRequest";
 
 const contains = (value: string): undefined | object => {
   return value === undefined ? undefined : { $regex: value };
@@ -22,7 +22,7 @@ const between = (min: number, max: number): undefined | object => {
 const listContainseOneOrMore = (
   vals: string,
   field: string
-): undefined | object => {
+): undefined | object[] => {
   if (vals === null || vals === undefined) return undefined;
   const values = vals.split(",");
   if (values.length == 0) return undefined;
