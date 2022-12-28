@@ -9,11 +9,12 @@ const gameSchema = new mongoose.Schema({
         require: true
     },
     platforms: [{ type: Number, ref: 'Platform' }],
-    screenshots: [Number],
+    screenshots: [String],
     slug: String,
     summary: String,
-    cover: Number,
-    alternative_names: [String]
+    cover: String,
+    price: Number,
+    availability: Number,
 }, { _id: false })
 
 const Game = mongoose.model('games', gameSchema);
