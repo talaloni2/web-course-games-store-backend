@@ -41,13 +41,13 @@ const mapToSingleGameResponse = (game, platforms) => {
 const mapToDbGame = (gameDto, gameId) => {
     return {
         _id: gameId,
-        totalRating: gameDto.totalRating,
+        totalRating: gameDto.totalRating || 1,
         name: gameDto.name,
-        platforms: gameDto.platforms,
-        slug: gameDto.slug,
-        summary: gameDto.summary,
-        price: gameDto.price,
-        availability: gameDto.availability
+        platforms: gameDto.platforms || [],
+        summary: gameDto.summary || "",
+        price: gameDto.price || 10,
+        availability: gameDto.availability || 1,
+        screenshots: [],
     };
 }
 

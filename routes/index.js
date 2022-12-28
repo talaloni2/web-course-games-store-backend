@@ -17,6 +17,7 @@ let routes = app => {
   app.post("/games/:id/cover", gamesController.attachCover);
   app.post("/games/:id/screenshot", gamesController.attachScreenshot);
   app.put("/games/:id", jsonParser, gamesController.updateGame);
+  app.delete("/games/:id", gamesController.deleteGame);
 };
 
 module.exports = routes;

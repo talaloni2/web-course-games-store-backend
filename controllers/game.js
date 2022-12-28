@@ -7,30 +7,30 @@ const { database } = require("../middleware/db");
 const uploadImage = require("../middleware/upload");
 
 
-const gamesList = async (req, resp) => {
+const gamesList = async (req, res) => {
     const search = buildGameListQuery(req.query)
     let games = await Game.find(search).sort(buildGameListSort(req.query.sort));
     games = gamesMapper.mapToGamesListResponse(games);
-    resp.json(games);
+    res.json(games);
 }
 
-const singleGame = async (req, resp) => {
+const singleGame = async (req, res) => {
     const game = await Game.findById(req.params.id);
     if (game === null) {
-        resp.sendStatus(404);
+        res.sendStatus(404);
         return;
     }
     let platforms = await Platform.find({ _id: game.platforms })
     const gameResponse = gamesMapper.mapToSingleGameResponse(game, platforms);
-    resp.json(gameResponse);
+    res.json(gameResponse);
 }
 
-const addGame = async (req, resp) => {
+const addGame = async (req, res) => {
 
     const gameWithSameName = await Game.findOne({name: req.body.name});
     if (gameWithSameName !== null) {
-        resp.status(400);
-        return resp.json({"message": "game with the same name already exists"});
+        res.status(400);
+        return res.json({"message": "game with the same name already exists"});
     }
 
     const gameWithLargestId = await Game.find({}).sort({ _id: -1 }).limit(1);
@@ -38,35 +38,35 @@ const addGame = async (req, resp) => {
 
     let createdGame = gamesMapper.mapToDbGame(req.body, currentId);
 
-    const requestedPlatforms = req.body.platforms;
+    const requestedPlatforms = createdGame.platforms;
     let platforms = await Platform.find({ _id: { $in: requestedPlatforms } });
     if (platforms.length != requestedPlatforms.length) {
-        resp.sendStatus(400);
-        resp.send("One or more specified platforms do not exist");
+        res.sendStatus(400);
+        res.send("One or more specified platforms do not exist");
     }
 
     var game = new Game(createdGame);
     game = await game.save();
-    return resp.json({ id: game._id });
+    return res.json({ id: game._id });
 }
 
-const attachCover = async (req, resp) => {
+const attachCover = async (req, res) => {
     try {
         var game = await Game.findById(req.params.id);
         if (game === null) {
-            return resp.sendStatus(404);
+            return res.sendStatus(404);
         }
 
-        await uploadImage(req, resp);
+        await uploadImage(req, res);
         if (req.file == undefined) {
-            resp.status(400);
-            return resp.json({
+            res.status(400);
+            return res.json({
                 message: "You must select a file.",
             });
         }
         game.cover = req.file.filename;
         game = await game.save();
-        return resp.sendStatus(200);
+        return res.sendStatus(200);
     } catch (error) {
         console.log(error);
 
@@ -76,24 +76,24 @@ const attachCover = async (req, resp) => {
     }
 }
 
-const attachScreenshot = async (req, resp) => {
+const attachScreenshot = async (req, res) => {
     try {
         var game = await Game.findById(req.params.id);
         if (game === null) {
-            return resp.sendStatus(404);
+            return res.sendStatus(404);
         }
 
-        await uploadImage(req, resp);
+        await uploadImage(req, res);
         if (req.file == undefined) {
-            resp.status(400);
-            return resp.json({
+            res.status(400);
+            return res.json({
                 message: "You must select a file.",
             });
         }
-        game.screenshots = game.screenshots || [];
+        game.screenshots = game.screenshots;
         game.screenshots.push(req.file.filename);
         game = await game.save();
-        return resp.sendStatus(200);
+        return res.sendStatus(200);
     } catch (error) {
         console.log(error);
 
@@ -103,17 +103,17 @@ const attachScreenshot = async (req, resp) => {
     }
 }
 
-const updateGame = async (req, resp) => {
+const updateGame = async (req, res) => {
 
     const gameWithSameName = await Game.findOne({name: req.body.name, _id: {$ne: req.params.id}});
     if (gameWithSameName !== null) {
-        resp.status(400);
-        return resp.json({"message": "game with the same name already exists"});
+        res.status(400);
+        return res.json({"message": "game with the same name already exists"});
     }
 
     var gameToUpdate = await Game.findById(req.params.id);
     if (gameToUpdate === null){
-        return resp.sendStatus(404);
+        return res.sendStatus(404);
     }
 
     var updatedFields = gamesMapper.mapToDbGameUpdate(req.body);
@@ -122,15 +122,23 @@ const updateGame = async (req, resp) => {
     const requestedPlatforms = gameToUpdate.platforms;
     let platforms = await Platform.find({ _id: { $in: requestedPlatforms } });
     if (platforms.length != requestedPlatforms.length) {
-        resp.sendStatus(400);
-        resp.send("One or more specified platforms do not exist");
+        res.sendStatus(400);
+        res.send("One or more specified platforms do not exist");
     }
 
     var game = await gameToUpdate.save();
-    return resp.json({ id: game._id });
+    return res.json({ id: game._id });
 }
 
+const deleteGame = async (req, res) => {
+    var gameToDelete = await Game.findById(req.params.id);
+    if (gameToDelete === null){
+        return res.sendStatus(404);
+    }
 
+    await gameToDelete.delete();
+    return res.sendStatus(200);
+}
 
 module.exports = {
     gamesList,
@@ -139,4 +147,5 @@ module.exports = {
     attachCover,
     attachScreenshot,
     updateGame,
+    deleteGame,
 }
