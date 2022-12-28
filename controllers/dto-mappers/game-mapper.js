@@ -1,13 +1,15 @@
 const serverConfig = require("../../config/server");
+const Game = require("../../models/game");
+const { filterUndefined } = require("../../utils/request-builder");
 
 imagesUrl = serverConfig.filesURL;
 
 const getImageUrlIfExists = (imageId) => {
     if (imageId === null || imageId === undefined) return null;
-    return `${imagesUrl}${imageId}.jpg`;
+    return `${imagesUrl}${imageId}`;
 }
 
-const mapToGamesList = (games) => {
+const mapToGamesListResponse = (games) => {
     return games.map(game => {
         return {
             rating: game.totalRating || null,
@@ -22,9 +24,9 @@ const mapToGamesList = (games) => {
 }
 
 
-const mapToSingleGame = (game, platforms) => {
+const mapToSingleGameResponse = (game, platforms) => {
     return {
-        platforms: platforms.map(p => {return {id: p._id, name: p.name}}),
+        platforms: platforms.map(p => { return { id: p._id, name: p.name } }),
         rating: game.totalRating || null,
         name: game.name,
         cover: getImageUrlIfExists(game.cover),
@@ -36,7 +38,34 @@ const mapToSingleGame = (game, platforms) => {
     };
 }
 
+const mapToDbGame = (gameDto, gameId) => {
+    return {
+        _id: gameId,
+        totalRating: gameDto.totalRating,
+        name: gameDto.name,
+        platforms: gameDto.platforms,
+        slug: gameDto.slug,
+        summary: gameDto.summary,
+        price: gameDto.price,
+        availability: gameDto.availability
+    };
+}
+
+const mapToDbGameUpdate = (gameDto) => {
+    return filterUndefined({
+        totalRating: gameDto.totalRating,
+        name: gameDto.name,
+        platforms: gameDto.platforms,
+        slug: gameDto.slug,
+        summary: gameDto.summary,
+        price: gameDto.price,
+        availability: gameDto.availability
+    });
+}
+
 module.exports = {
-    mapToGamesList,
-    mapToSingleGame,
+    mapToGamesListResponse,
+    mapToSingleGameResponse,
+    mapToDbGame,
+    mapToDbGameUpdate,
 };
