@@ -1,15 +1,18 @@
-const serverConfig = require("../../config/server");
-const Game = require("../../models/game");
-const { filterUndefined } = require("../../utils/request-builder");
+import { filesURL } from "../../config/server";
+import ICreateGameRequest from "../../interfaces/ICreateGameRequest";
+import IUpdateGameRequest from "../../interfaces/IUpdateGameRequest";
+import {IGame} from "../../models/game";
+import { IPlatform } from "../../models/platform";
+import { filterUndefined } from "../../utils/request-builder";
 
-imagesUrl = serverConfig.filesURL;
+let imagesUrl = filesURL;
 
-const getImageUrlIfExists = (imageId) => {
+const getImageUrlIfExists = (imageId: string) => {
     if (imageId === null || imageId === undefined) return null;
     return `${imagesUrl}${imageId}`;
 }
 
-const mapToGamesListResponse = (games) => {
+const mapToGamesListResponse = (games: IGame[]) => {
     return games.map(game => {
         return {
             rating: game.totalRating || null,
@@ -24,7 +27,7 @@ const mapToGamesListResponse = (games) => {
 }
 
 
-const mapToSingleGameResponse = (game, platforms) => {
+const mapToSingleGameResponse = (game: IGame, platforms: IPlatform[]) => {
     return {
         platforms: platforms.map(p => { return { id: p._id, name: p.name } }),
         rating: game.totalRating || null,
@@ -38,7 +41,7 @@ const mapToSingleGameResponse = (game, platforms) => {
     };
 }
 
-const mapToDbGame = (gameDto, gameId) => {
+const mapToDbGame = (gameDto: ICreateGameRequest, gameId: number): IGame => {
     return {
         _id: gameId,
         totalRating: gameDto.totalRating || 1,
@@ -48,22 +51,22 @@ const mapToDbGame = (gameDto, gameId) => {
         price: gameDto.price || 10,
         availability: gameDto.availability || 1,
         screenshots: [],
+        cover: null,
     };
 }
 
-const mapToDbGameUpdate = (gameDto) => {
+const mapToDbGameUpdate = (gameDto: IUpdateGameRequest) => {
     return filterUndefined({
         totalRating: gameDto.totalRating,
         name: gameDto.name,
         platforms: gameDto.platforms,
-        slug: gameDto.slug,
         summary: gameDto.summary,
         price: gameDto.price,
         availability: gameDto.availability
     });
 }
 
-module.exports = {
+export {
     mapToGamesListResponse,
     mapToSingleGameResponse,
     mapToDbGame,

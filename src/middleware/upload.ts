@@ -1,7 +1,7 @@
-const util = require("util");
-const multer = require("multer");
-const { GridFsStorage } = require("multer-gridfs-storage");
-const dbConfig = require("../config/db");
+import util from "util";
+import multer from "multer";
+import { GridFsStorage } from "multer-gridfs-storage";
+import dbConfig from "../config/db";
 
 var storage = new GridFsStorage({
   url: dbConfig.url + dbConfig.database,
@@ -16,11 +16,11 @@ var storage = new GridFsStorage({
 
     return {
       bucketName: dbConfig.imgBucket,
-      filename: `${Date.now()}-${file.originalname}`
+      filename: `${Date.now()}-${file.originalname}`,
     };
-  }
+  },
 });
 
 var uploadFiles = multer({ storage: storage }).single("file");
 var uploadFilesMiddleware = util.promisify(uploadFiles);
-module.exports = uploadFilesMiddleware;
+export default uploadFilesMiddleware;
