@@ -12,7 +12,7 @@ const getImageUrlIfExists = (imageId: string) => {
     return `${imagesUrl}${imageId}`;
 }
 
-const mapToGamesListResponse = (games: [IGame]) => {
+const mapToGamesListResponse = (games: IGame[]) => {
     return games.map(game => {
         return {
             rating: game.totalRating || null,
@@ -27,7 +27,7 @@ const mapToGamesListResponse = (games: [IGame]) => {
 }
 
 
-const mapToSingleGameResponse = (game: IGame, platforms: [IPlatform]) => {
+const mapToSingleGameResponse = (game: IGame, platforms: IPlatform[]) => {
     return {
         platforms: platforms.map(p => { return { id: p._id, name: p.name } }),
         rating: game.totalRating || null,
@@ -66,7 +66,7 @@ const mapToDbGameUpdate = (gameDto: IUpdateGameRequest) => {
     });
 }
 
-export default {
+export {
     mapToGamesListResponse,
     mapToSingleGameResponse,
     mapToDbGame,

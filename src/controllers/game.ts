@@ -9,8 +9,7 @@ import IGameUserSearchRequest from "../interfaces/IGameUserSearchRequest";
 const gamesList = async (req: Request<{}, {}, {}, IGameUserSearchRequest>, res: Response) => {
     const search = buildGameListQuery(req.query)
     let games = await Game.find(search).sort(buildGameListSort(req.query.sort));
-    games = mapToGamesListResponse(games);
-    res.json(games);
+    res.json(mapToGamesListResponse(games));
 }
 
 const singleGame = async (req: Request, res: Response) => {
