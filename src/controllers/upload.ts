@@ -85,7 +85,7 @@ const download = async (req: Request, res: Response) => {
   }
 };
 
-export default {
+export {
   uploadFiles,
   getListFiles,
   download,

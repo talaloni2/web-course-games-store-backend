@@ -139,7 +139,7 @@ const deleteGame = async (req: Request, res: Response) => {
     return res.sendStatus(200);
 }
 
-export default {
+export {
     gamesList,
     singleGame,
     addGame,
