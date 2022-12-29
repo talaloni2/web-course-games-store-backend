@@ -24,7 +24,7 @@ const insertPlatforms = async () => {
     await Platform.insertMany(platforms.map(p => { return { ...p, _id: p.id, platform_logo: `${p.platform_logo}.jpg` }; }));
 }
 
-const getRandomInt = (min, max) => {
+const getRandomInt = (min: number, max: number) => {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min) + min);
