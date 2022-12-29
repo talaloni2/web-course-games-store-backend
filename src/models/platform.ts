@@ -3,9 +3,9 @@ import mongoose from "mongoose";
 interface IPlatform {
   _id: number;
   name: string;
-  slug: string;
-  platform_logo: number;
+  platform_logo: string;
   alternative_name: string;
+  abbreviation: string;
 }
 
 const platformSchema = new mongoose.Schema<IPlatform>(
@@ -15,9 +15,9 @@ const platformSchema = new mongoose.Schema<IPlatform>(
       type: String,
       require: true,
     },
-    slug: String,
-    platform_logo: Number,
+    platform_logo: String,
     alternative_name: String,
+    abbreviation: String,
   },
   { _id: false }
 );

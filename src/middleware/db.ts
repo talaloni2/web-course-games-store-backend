@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
-import dbConfig from "../config/db";
+import {url as dbUrl , database as dbName} from "../config/db";
 
-const url = dbConfig.url;
-const databaseName = dbConfig.database;
+const url = dbUrl;
+const databaseName = dbName;
 
 mongoose.connect(url + databaseName)
     .then(() => {

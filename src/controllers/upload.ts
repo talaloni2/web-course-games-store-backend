@@ -1,10 +1,10 @@
-import upload from "../middleware/upload";
-import dbconfig from "../config/db";
-import { database } from "../middleware/db";
+import { imgBucket } from "../config/db";
 import { filesURL } from "../config/server";
+import { database } from "../middleware/db";
+import upload from "../middleware/upload";
 
-import { GridFSBucket } from "mongodb";
 import { Request, Response } from "express";
+import { GridFSBucket } from "mongodb";
 
 const baseUrl = filesURL;
 
@@ -33,7 +33,7 @@ const uploadFiles = async (req: Request, res: Response) => {
 
 const getListFiles = async (req: Request, res: Response) => {
   try {
-    const images = database.collection(dbconfig.imgBucket + ".files");
+    const images = database.collection(imgBucket + ".files");
 
     if ((await images.estimatedDocumentCount()) === 0) {
       return res.status(500).send({
@@ -62,7 +62,7 @@ const getListFiles = async (req: Request, res: Response) => {
 const download = async (req: Request, res: Response) => {
   try {
     const bucket = new GridFSBucket(database.db, {
-      bucketName: dbconfig.imgBucket,
+      bucketName: imgBucket,
     });
 
     let downloadStream = bucket.openDownloadStreamByName(req.params.name);
