@@ -1,23 +1,30 @@
-import { uploadFiles, getListFiles, download } from "../controllers/upload";
+import { json } from "body-parser";
+import { Express } from "express";
 import {
-  gamesList,
-  singleGame,
   addGame,
   attachCover,
   attachScreenshot,
-  updateGame,
   deleteGame,
+  gamesList,
+  singleGame,
+  updateGame
 } from "../controllers/game";
-import { json } from "body-parser";
-import { Express } from "express";
+import {
+  addGameCollection,
+  deleteGameCollection,
+  gameCollectionsList,
+  singleGameCollection,
+  updateGameCollection
+} from "../controllers/game-collection";
 import {
   addPlatform,
   attachPlatformLogo,
   deletePlatform,
   platformsList,
   singlePlatform,
-  updatePlatform,
+  updatePlatform
 } from "../controllers/platform";
+import { download, getListFiles, uploadFiles } from "../controllers/upload";
 
 const jsonParser = json();
 
@@ -40,6 +47,12 @@ const routes = (app: Express) => {
   app.post("/platforms/:id/logo", attachPlatformLogo);
   app.put("/platforms/:id", jsonParser, updatePlatform);
   app.delete("/platforms/:id", deletePlatform);
+
+  app.get("/gameCollections", gameCollectionsList);
+  app.get("/gameCollections/:id", singleGameCollection);
+  app.post("/gameCollections", jsonParser, addGameCollection);
+  app.put("/gameCollections/:id", jsonParser, updateGameCollection);
+  app.delete("/gameCollections/:id", deleteGameCollection);
 };
 
 export default routes;
