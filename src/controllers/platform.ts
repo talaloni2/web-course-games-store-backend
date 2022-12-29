@@ -43,12 +43,12 @@ const addPlatform = async (req: Request, res: Response) => {
     return res.json({ message: "platform with the same name already exists" });
   }
 
-  const gameWithLargestId = await Platform.find({}).sort({ _id: -1 }).limit(1);
-  const currentId = gameWithLargestId.at(0)._id + 1;
+  const platformWithLargestId = await Platform.find({}).sort({ _id: -1 }).limit(1);
+  const currentId = platformWithLargestId.at(0)._id + 1;
 
-  let createdGame = mapToDbPlatform(req.body, currentId);
+  let createdPlatform = mapToDbPlatform(req.body, currentId);
 
-  var platform = new Platform(createdGame);
+  var platform = new Platform(createdPlatform);
   platform = await platform.save();
   return res.json({ id: platform._id });
 };

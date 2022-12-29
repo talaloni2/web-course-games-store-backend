@@ -51,8 +51,8 @@ const addGame = async (req: Request, res: Response) => {
   const requestedPlatforms = createdGame.platforms;
   let platforms = await Platform.find({ _id: { $in: requestedPlatforms } });
   if (platforms.length != requestedPlatforms.length) {
-    res.sendStatus(400);
-    res.send("One or more specified platforms do not exist");
+    res.status(400);
+    return res.send("One or more specified platforms do not exist");
   }
 
   var game = new Game(createdGame);
@@ -134,8 +134,8 @@ const updateGame = async (req: Request, res: Response) => {
   const requestedPlatforms = gameToUpdate.platforms;
   let platforms = await Platform.find({ _id: { $in: requestedPlatforms } });
   if (platforms.length != requestedPlatforms.length) {
-    res.sendStatus(400);
-    res.send("One or more specified platforms do not exist");
+    res.status(400);
+    return res.send("One or more specified platforms do not exist");
   }
 
   var game = await gameToUpdate.save();
