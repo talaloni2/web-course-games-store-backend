@@ -15,6 +15,7 @@ import { Request, Response } from "express";
 import IGameUserSearchRequest from "../interfaces/games/IGameUserSearchRequest";
 import { GameCollection } from "../models/game-collection";
 import { listContainseOneOrMore } from "../utils/request-builder";
+import "../middleware/db";
 
 const gamesList = async (
   req: Request<{}, {}, {}, IGameUserSearchRequest>,
@@ -44,7 +45,7 @@ const addGame = async (req: Request, res: Response) => {
   }
 
   const gameWithLargestId = await Game.find({}).sort({ _id: -1 }).limit(1);
-  const currentId = gameWithLargestId.at(0)._id + 1;
+  const currentId = (gameWithLargestId.length !== 0 && gameWithLargestId.at(0)._id + 1) || 1;
 
   let createdGame = mapToDbGame(req.body, currentId);
 
