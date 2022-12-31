@@ -15,7 +15,6 @@ import { Request, Response } from "express";
 import IGameUserSearchRequest from "../interfaces/games/IGameUserSearchRequest";
 import { GameCollection } from "../models/game-collection";
 import { listContainseOneOrMore } from "../utils/request-builder";
-import "../middleware/db";
 
 const gamesList = async (
   req: Request<{}, {}, {}, IGameUserSearchRequest>,
@@ -32,8 +31,7 @@ const singleGame = async (req: Request, res: Response) => {
     res.sendStatus(404);
     return;
   }
-  let platforms = await Platform.find({ _id: game.platforms });
-  const gameResponse = mapToSingleGameResponse(game, platforms);
+  const gameResponse = mapToSingleGameResponse(game);
   res.json(gameResponse);
 };
 

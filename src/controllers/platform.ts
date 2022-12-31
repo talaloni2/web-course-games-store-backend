@@ -43,8 +43,13 @@ const addPlatform = async (req: Request, res: Response) => {
     return res.json({ message: "platform with the same name already exists" });
   }
 
-  const platformWithLargestId = await Platform.find({}).sort({ _id: -1 }).limit(1);
-  const currentId = platformWithLargestId.at(0)._id + 1;
+  const platformWithLargestId = await Platform.find({})
+    .sort({ _id: -1 })
+    .limit(1);
+  const currentId =
+    (platformWithLargestId.length !== 0 &&
+      platformWithLargestId.at(0)._id + 1) ||
+    1;
 
   let createdPlatform = mapToDbPlatform(req.body, currentId);
 
