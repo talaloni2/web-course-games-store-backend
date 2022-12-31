@@ -46,7 +46,7 @@ const addGameCollection = async (req: Request, res: Response) => {
     });
   }
 
-  const gameCollectionWithLargestId = await Platform.find({})
+  const gameCollectionWithLargestId = await GameCollection.find({})
     .sort({ _id: -1 })
     .limit(1);
   const currentId =

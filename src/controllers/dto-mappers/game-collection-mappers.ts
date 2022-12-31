@@ -24,7 +24,7 @@ const mapToDbGameCollection = (
   return {
     _id: gameCollectionId,
     name: gameCollectionDto.name,
-    games: gameCollectionDto.games,
+    games: gameCollectionDto.games || [],
   };
 };
 
