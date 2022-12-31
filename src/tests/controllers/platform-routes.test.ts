@@ -11,7 +11,6 @@ jest.mock("../../config/db", () => ({
   imgBucket: "photos",
 }));
 
-jest.setTimeout(10000000);
 
 afterAll(() => {
   server.close();
