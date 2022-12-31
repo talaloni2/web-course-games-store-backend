@@ -22,10 +22,8 @@ const mapToPlatformsSingleResponse = (platform: IPlatform) => {
 
 const mapToDbPlatform = (
   platformDto: ICreatePlatformRequest,
-  platformId: number
 ): IPlatform => {
   return {
-    _id: platformId,
     abbreviation: platformDto.abbreviation,
     name: platformDto.name,
     platform_logo: null,

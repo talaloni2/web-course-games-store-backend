@@ -1,7 +1,6 @@
 import ICreateGameRequest from "../../interfaces/games/ICreateGameRequest";
 import IUpdateGameRequest from "../../interfaces/games/IUpdateGameRequest";
 import {IGame} from "../../models/game";
-import { IPlatform } from "../../models/platform";
 import { filterUndefined } from "../../utils/request-builder";
 import { getImageUrlIfExists } from "./utils";
 
@@ -34,9 +33,8 @@ const mapToSingleGameResponse = (game: IGame) => {
     };
 }
 
-const mapToDbGame = (gameDto: ICreateGameRequest, gameId: number): IGame => {
+const mapToDbGame = (gameDto: ICreateGameRequest): IGame => {
     return {
-        _id: gameId,
         totalRating: gameDto.totalRating || 1,
         name: gameDto.name,
         platforms: gameDto.platforms || [],

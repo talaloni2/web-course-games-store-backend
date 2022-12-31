@@ -1,5 +1,5 @@
 export default interface IGameCollectionUserSearchRequest {
-  id?: number;
+  id?: string;
   name?: string;
   games?: string;
   sort?: string;

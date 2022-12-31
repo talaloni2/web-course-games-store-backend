@@ -1,5 +1,5 @@
 export default interface IGameUserSearchRequest {
-    id?: undefined | number,
+    id?: undefined | string,
     name?: undefined | string,
     priceMin?: undefined | number,
     priceMax?: undefined | number,

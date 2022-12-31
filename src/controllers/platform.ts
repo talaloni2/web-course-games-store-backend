@@ -51,7 +51,7 @@ const addPlatform = async (req: Request, res: Response) => {
       platformWithLargestId.at(0)._id + 1) ||
     1;
 
-  let createdPlatform = mapToDbPlatform(req.body, currentId);
+  let createdPlatform = mapToDbPlatform(req.body);
 
   var platform = new Platform(createdPlatform);
   platform = await platform.save();
@@ -119,12 +119,12 @@ const deletePlatform = async (req: Request, res: Response) => {
 };
 
 const deletePlatformReferenceFromGames = async (req: Request) => {
-  var collectionsContainingGame = await Game.find(
+  var collectionsContainingPlatform = await Game.find(
     listContainseOneOrMore(req.params.id, "platforms")[0]
   );
-  collectionsContainingGame.forEach(async (game) => {
+  collectionsContainingPlatform.forEach(async (game) => {
     game.platforms = game.platforms.filter(
-      (platformId) => platformId != parseInt(req.params.id)
+      (platformId) => platformId.toString() !== req.params.id
     );
     await game.save();
   });

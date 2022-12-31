@@ -1,6 +1,7 @@
 import request from "supertest";
 import { v4 as uuid } from "uuid";
 import { app, server } from "../../server";
+import { closeServerResources } from "./utils";
 
 jest.mock("../../config/db", () => ({
   get url() {
@@ -11,9 +12,8 @@ jest.mock("../../config/db", () => ({
   imgBucket: "photos",
 }));
 
-
-afterAll(() => {
-  server.close();
+afterAll(async () => {
+  await closeServerResources();
 });
 
 test("Get single Platform", async () => {

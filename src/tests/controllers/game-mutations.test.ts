@@ -1,7 +1,10 @@
+import mongoose from "mongoose";
 import path from "path";
 import request from "supertest";
 import { v4 as uuid } from "uuid";
 import { app, server } from "../../server";
+import { database } from "../../middleware/db";
+import { closeServerResources } from "./utils";
 
 jest.mock("../../config/db", () => ({
   get url() {
@@ -12,11 +15,11 @@ jest.mock("../../config/db", () => ({
   imgBucket: "photos",
 }));
 
-afterAll(() => {
-  server.close();
+afterAll(async () => {
+  await closeServerResources();
 });
 
-test("Added game successfully with increment", async () => {
+test("Added game successfully", async () => {
   var resp = await request(app)
     .post("/games")
     .set("content-type", "application/json")
@@ -31,21 +34,7 @@ test("Added game successfully with increment", async () => {
     .expect(200);
   let responseObject: { id: string } = resp.body;
 
-  let currentId = responseObject.id;
-
-  resp = await request(app)
-    .post("/games")
-    .set("content-type", "application/json")
-    .send({
-      totalRating: 1,
-      name: uuid(),
-      platforms: [],
-      summary: "test summary",
-      price: 100,
-      availability: 2,
-    })
-    .expect(200);
-  expect(resp.body).toStrictEqual({ id: currentId + 1 });
+  expect(responseObject.id).not.toBeNull();
 });
 
 test("Uploaded cover successfully", async () => {
@@ -304,7 +293,7 @@ test("Forbid create game with non existing platform", async () => {
     .send({
       totalRating: 1,
       name: uuid(),
-      platforms: [-1],
+      platforms: [new mongoose.Types.ObjectId()],
       summary: "test summary",
       price: 100,
       availability: 2,

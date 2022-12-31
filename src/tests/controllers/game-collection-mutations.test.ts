@@ -1,7 +1,8 @@
-import path from "path";
+import mongoose, { mongo } from "mongoose";
 import request from "supertest";
 import { v4 as uuid } from "uuid";
 import { app, server } from "../../server";
+import { closeServerResources } from "./utils";
 
 jest.mock("../../config/db", () => ({
   get url() {
@@ -12,11 +13,11 @@ jest.mock("../../config/db", () => ({
   imgBucket: "photos",
 }));
 
-afterAll(() => {
-  server.close();
+afterAll(async () => {
+  await closeServerResources();
 });
 
-test("Added game collection successfully with increment", async () => {
+test("Added game collection successfully", async () => {
   var resp = await request(app)
     .post("/gameCollections")
     .set("content-type", "application/json")
@@ -26,16 +27,7 @@ test("Added game collection successfully with increment", async () => {
     .expect(200);
   let responseObject: { id: string } = resp.body;
 
-  let currentId = responseObject.id;
-
-  resp = await request(app)
-    .post("/gameCollections")
-    .set("content-type", "application/json")
-    .send({
-      name: uuid(),
-    })
-    .expect(200);
-  expect(resp.body).toStrictEqual({ id: currentId + 1 });
+  expect(responseObject.id).not.toBeNull();
 });
 
 test("Updated game collection successfully to different name", async () => {
@@ -60,7 +52,7 @@ test("Updated game collection successfully to different name", async () => {
     .set("content-type", "application/json")
     .send({
       name: secondName,
-      games: []
+      games: [],
     })
     .expect(200);
   var platformAfterUpdate = await request(app)
@@ -156,9 +148,12 @@ test("Delete game collection", async () => {
     .set("content-type", "application/json")
     .expect(200);
 
-  await request(app).delete(`/gameCollections/${createResponse.body.id}`).expect(200);
-  await request(app).get(`/gameCollections/${createResponse.body.id}`).expect(404);
-
+  await request(app)
+    .delete(`/gameCollections/${createResponse.body.id}`)
+    .expect(200);
+  await request(app)
+    .get(`/gameCollections/${createResponse.body.id}`)
+    .expect(404);
 });
 
 test("Forbid create game collection with non existing game", async () => {
@@ -167,7 +162,7 @@ test("Forbid create game collection with non existing game", async () => {
     .set("content-type", "application/json")
     .send({
       name: uuid(),
-      games: [-1],
+      games: [new mongoose.Types.ObjectId()],
     })
     .expect(400);
 

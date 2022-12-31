@@ -2,20 +2,18 @@ import mongoose from "mongoose";
 
 // total_rating, name, platforms, screenshots, slug, summary, cover, alternative_names
 interface IGameCollection {
-    _id: number,
+    _id?: string,
     name: string,
-    games: number[],
+    games: string[],
 }
 const gameCollectionSchema = new mongoose.Schema<IGameCollection>(
   {
-    _id: Number,
     name: {
       type: String,
       require: true,
     },
-    games: [{ type: Number, ref: "Game" }],
+    games: [{ type: mongoose.Types.ObjectId, ref: "Game" }],
   },
-  { _id: false }
 );
 
 const GameCollection = mongoose.model("gameCollections", gameCollectionSchema);
