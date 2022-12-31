@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 interface IPlatform {
-  _id: number;
+  _id?: string;
   name: string;
   platform_logo: string;
   alternative_name: string;
@@ -10,7 +10,6 @@ interface IPlatform {
 
 const platformSchema = new mongoose.Schema<IPlatform>(
   {
-    _id: Number,
     name: {
       type: String,
       require: true,
@@ -19,7 +18,6 @@ const platformSchema = new mongoose.Schema<IPlatform>(
     alternative_name: String,
     abbreviation: String,
   },
-  { _id: false }
 );
 
 const Platform = mongoose.model("platforms", platformSchema);

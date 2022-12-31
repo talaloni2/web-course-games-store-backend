@@ -1,5 +1,5 @@
 export default interface IPlatformUserSearchRequest {
-  id?: number;
+  id?: string;
   name?: string;
   alternativeName?: string;
   abbreviation?: string;

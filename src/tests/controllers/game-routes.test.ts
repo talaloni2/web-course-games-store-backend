@@ -1,6 +1,9 @@
+import mongoose, { mongo } from "mongoose";
 import request from "supertest";
 import { v4 as uuid } from "uuid";
 import { app, server } from "../../server";
+import { database } from "../../middleware/db";
+import { closeServerResources } from "./utils";
 
 jest.mock("../../config/db", () => ({
   get url() {
@@ -11,8 +14,8 @@ jest.mock("../../config/db", () => ({
   imgBucket: "photos",
 }));
 
-afterAll(() => {
-  server.close();
+afterAll(async () => {
+  await closeServerResources();
 });
 
 test("Get single Game", async () => {
@@ -116,7 +119,7 @@ test("Search Game by platform", async () => {
   expect(searchResponseWithResults.body.length).toEqual(1);
 
   const searchResponseWithoutResults = await request(app)
-    .get(`/games?platforms=-5`)
+    .get(`/games?platforms=${new mongoose.Types.ObjectId()}`)
     .set("content-type", "application/json")
     .expect(200);
 

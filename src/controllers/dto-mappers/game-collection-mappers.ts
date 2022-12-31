@@ -19,10 +19,8 @@ const mapToGameCollectionSingleResponse = (gameCollection: IGameCollection) => {
 
 const mapToDbGameCollection = (
   gameCollectionDto: ICreateGameCollectionRequest,
-  gameCollectionId: number
 ): IGameCollection => {
   return {
-    _id: gameCollectionId,
     name: gameCollectionDto.name,
     games: gameCollectionDto.games || [],
   };

@@ -45,7 +45,7 @@ const addGame = async (req: Request, res: Response) => {
   const gameWithLargestId = await Game.find({}).sort({ _id: -1 }).limit(1);
   const currentId = (gameWithLargestId.length !== 0 && gameWithLargestId.at(0)._id + 1) || 1;
 
-  let createdGame = mapToDbGame(req.body, currentId);
+  let createdGame = mapToDbGame(req.body);
 
   const requestedPlatforms = createdGame.platforms;
   let platforms = await Platform.find({ _id: { $in: requestedPlatforms } });
@@ -158,7 +158,7 @@ const deleteGameReferenceFromCollections = async (req: Request) => {
     listContainseOneOrMore(req.params.id, "games")[0]
   );
   collectionsContainingGame.forEach(async (col) => {
-    col.games = col.games.filter((gameId) => gameId != parseInt(req.params.id));
+    col.games = col.games.filter((gameId) => gameId.toString() !== req.params.id);
     await col.save();
   });
 };

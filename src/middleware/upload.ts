@@ -1,10 +1,11 @@
 import util from "util";
 import multer from "multer";
 import { GridFsStorage } from "multer-gridfs-storage";
-import {imgBucket, database as dbName, url as dbUrl} from "../config/db";
+import { database } from "./db";
+import { imgBucket } from "../config/db";
 
 var storage = new GridFsStorage({
-  url: dbUrl + dbName,
+  db: database,
   options: { useNewUrlParser: true, useUnifiedTopology: true },
   file: (req, file) => {
     const match = ["image/png", "image/jpeg"];

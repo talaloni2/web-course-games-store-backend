@@ -3,6 +3,7 @@ import express, { urlencoded } from "express";
 import initRoutes from "./routes";
 import { port } from "./config/server";
 import "./middleware/db"; // initializing db on server startup
+import { Server } from "http";
 
 const app = express();
 const corsOptions = {
@@ -16,7 +17,7 @@ app.use(cors(corsOptions));
 app.use(urlencoded({ extended: true }));
 initRoutes(app);
 
-var server = null;
+var server: Server = null;
 if (process.env.NODE_ENV === "test") {
   console.log("===========================================testing!");
   server = app.listen(0, () => console.log(`Listening on randomport`));

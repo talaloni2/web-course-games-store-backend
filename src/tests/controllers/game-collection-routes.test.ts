@@ -1,6 +1,8 @@
+import mongoose from "mongoose";
 import request from "supertest";
 import { v4 as uuid } from "uuid";
 import { app, server } from "../../server";
+import { closeServerResources } from "./utils";
 
 jest.mock("../../config/db", () => ({
   get url() {
@@ -11,8 +13,8 @@ jest.mock("../../config/db", () => ({
   imgBucket: "photos",
 }));
 
-afterAll(() => {
-  server.close();
+afterAll(async () => {
+  await closeServerResources();
 });
 
 test("Get single Game Collection", async () => {
@@ -108,7 +110,7 @@ test("Search Game collection by games", async () => {
   expect(searchResponseWithResults.body.length).toEqual(1);
 
   const searchResponseWithoutResults = await request(app)
-    .get(`/gameCollections?games=-5`)
+    .get(`/gameCollections?games=${new mongoose.Types.ObjectId()}`)
     .set("content-type", "application/json")
     .expect(200);
 

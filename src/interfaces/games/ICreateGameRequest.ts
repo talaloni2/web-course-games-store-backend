@@ -1,7 +1,7 @@
 export default interface ICreateGameRequest {
   totalRating: number;
   name: string;
-  platforms: number[];
+  platforms: string[];
   summary: string;
   price: number;
   availability: number;

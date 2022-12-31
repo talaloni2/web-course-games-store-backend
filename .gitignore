@@ -35,3 +35,5 @@ Footer
 .vscode
 .idea
 dist
+resources/seed-data/images
+resources/seed-data/images/*

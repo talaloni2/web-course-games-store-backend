@@ -1,12 +1,12 @@
-import { Schema, model } from "mongoose";
+import mongoose, { Schema, model, mongo } from "mongoose";
 
 // total_rating, name, platforms, screenshots, slug, summary, cover, alternative_names
 
 interface IGame {
-  _id: number;
+  _id?: string;
   totalRating: number;
   name: string;
-  platforms: number[];
+  platforms: string[];
   screenshots: string[];
   summary: string;
   cover: string;
@@ -16,20 +16,18 @@ interface IGame {
 
 const gameSchema = new Schema<IGame>(
   {
-    _id: Number,
     totalRating: Number,
     name: {
       type: String,
       require: true,
     },
-    platforms: [{ type: Number, ref: "Platform" }],
+    platforms: [{ type: mongoose.Types.ObjectId, ref: "Platform" }],
     screenshots: [String],
     summary: String,
     cover: String,
     price: Number,
     availability: Number,
   },
-  { _id: false }
 );
 
 const Game = model("games", gameSchema);
