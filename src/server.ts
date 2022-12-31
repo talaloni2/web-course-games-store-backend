@@ -16,6 +16,14 @@ app.use(cors(corsOptions));
 app.use(urlencoded({ extended: true }));
 initRoutes(app);
 
-app.listen(port, () => {
-  console.log(`Running at localhost:${port}`);
-});
+var server = null;
+if (process.env.NODE_ENV === "test") {
+  console.log("===========================================testing!");
+  server = app.listen(0, () => console.log(`Listening on randomport`));
+} else {
+  server = app.listen(port, () => {
+    console.log(`Running at localhost:${port}`);
+  });
+}
+
+export { app, server };

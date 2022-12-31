@@ -20,9 +20,9 @@ const mapToGamesListResponse = (games: IGame[]) => {
 }
 
 
-const mapToSingleGameResponse = (game: IGame, platforms: IPlatform[]) => {
+const mapToSingleGameResponse = (game: IGame) => {
     return {
-        platforms: platforms.map(p => { return { id: p._id, name: p.name } }),
+        platforms: game.platforms,
         rating: game.totalRating || null,
         name: game.name,
         cover: getImageUrlIfExists(game.cover),

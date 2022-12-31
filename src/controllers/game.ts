@@ -31,8 +31,7 @@ const singleGame = async (req: Request, res: Response) => {
     res.sendStatus(404);
     return;
   }
-  let platforms = await Platform.find({ _id: game.platforms });
-  const gameResponse = mapToSingleGameResponse(game, platforms);
+  const gameResponse = mapToSingleGameResponse(game);
   res.json(gameResponse);
 };
 
@@ -44,7 +43,7 @@ const addGame = async (req: Request, res: Response) => {
   }
 
   const gameWithLargestId = await Game.find({}).sort({ _id: -1 }).limit(1);
-  const currentId = gameWithLargestId.at(0)._id + 1;
+  const currentId = (gameWithLargestId.length !== 0 && gameWithLargestId.at(0)._id + 1) || 1;
 
   let createdGame = mapToDbGame(req.body, currentId);
 
