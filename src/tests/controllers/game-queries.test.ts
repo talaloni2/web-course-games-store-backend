@@ -135,3 +135,49 @@ async function createRandomPlatform() {
     })
     .expect(200);
 }
+
+test("get game forbid invalid id", async () => {
+  await request(app)
+    .get("/games/1")
+    .set("content-type", "application/json")
+    .expect(400);
+
+  await request(app)
+    .get("/games/hello")
+    .set("content-type", "application/json")
+    .expect(400);
+
+  await request(app)
+    .get(`/games/${new mongoose.Types.ObjectId()}`)
+    .set("content-type", "application/json")
+    .expect(404);
+});
+
+test("Search game forbid invalid platform ids", async () => {
+  await request(app)
+    .get("/games?platforms=1,2")
+    .set("content-type", "application/json")
+    .expect(400);
+
+  await request(app)
+    .get("/games?platforms=hello,bye")
+    .set("content-type", "application/json")
+    .expect(400);
+
+  await request(app)
+    .get("/games?platforms=hello")
+    .set("content-type", "application/json")
+    .expect(400);
+
+  await request(app)
+    .get(`/games?platforms=${new mongoose.Types.ObjectId()}`)
+    .set("content-type", "application/json")
+    .expect(200);
+
+  await request(app)
+    .get(
+      `/games?platforms=${new mongoose.Types.ObjectId()},${new mongoose.Types.ObjectId()}`
+    )
+    .set("content-type", "application/json")
+    .expect(200);
+});

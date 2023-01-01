@@ -7,11 +7,11 @@ import {
   mapToDbGameCollection,
   mapToDbGameCollectionUpdate,
   mapToGameCollectionSingleResponse,
-  mapToGameCollectionsListResponse,
+  mapToGameCollectionsListResponse
 } from "./dto-mappers/game-collection-mappers";
 import {
   buildGameCollectionListQuery,
-  buildGameCollectionListSort,
+  buildGameCollectionListSort
 } from "./query-builders/game-collection-query-builder";
 
 const gameCollectionsList = async (

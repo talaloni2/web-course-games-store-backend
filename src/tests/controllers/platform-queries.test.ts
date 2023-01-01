@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import request from "supertest";
 import { v4 as uuid } from "uuid";
 import { app, server } from "../../server";
@@ -64,4 +65,21 @@ test("Search Platform", async () => {
     .expect(200);
 
   expect(searchResponseWithoutResults.body.length).toEqual(0);
+});
+
+test("get platform forbid invalid id", async () => {
+  await request(app)
+    .get("/games/1")
+    .set("content-type", "application/json")
+    .expect(400);
+
+  await request(app)
+    .get("/games/hello")
+    .set("content-type", "application/json")
+    .expect(400);
+
+  await request(app)
+    .get(`/games/${new mongoose.Types.ObjectId()}`)
+    .set("content-type", "application/json")
+    .expect(404);
 });

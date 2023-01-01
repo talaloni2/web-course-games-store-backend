@@ -116,3 +116,49 @@ test("Search Game collection by games", async () => {
 
   expect(searchResponseWithoutResults.body.length).toEqual(0);
 });
+
+test("get game collection forbid invalid id", async () => {
+  await request(app)
+    .get("/gameCollections/1")
+    .set("content-type", "application/json")
+    .expect(400);
+
+  await request(app)
+    .get("/gameCollections/hello")
+    .set("content-type", "application/json")
+    .expect(400);
+
+  await request(app)
+    .get(`/gameCollections/${new mongoose.Types.ObjectId()}`)
+    .set("content-type", "application/json")
+    .expect(404);
+});
+
+test("Search game collection forbid invalid game ids", async () => {
+  await request(app)
+    .get("/gameCollections?games=1,2")
+    .set("content-type", "application/json")
+    .expect(400);
+
+  await request(app)
+    .get("/gameCollections?games=hello,bye")
+    .set("content-type", "application/json")
+    .expect(400);
+
+  await request(app)
+    .get("/gameCollections?games=hello")
+    .set("content-type", "application/json")
+    .expect(400);
+
+  await request(app)
+    .get(`/gameCollections?games=${new mongoose.Types.ObjectId()}`)
+    .set("content-type", "application/json")
+    .expect(200);
+
+  await request(app)
+    .get(
+      `/gameCollections?games=${new mongoose.Types.ObjectId()},${new mongoose.Types.ObjectId()}`
+    )
+    .set("content-type", "application/json")
+    .expect(200);
+});
