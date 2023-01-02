@@ -18,9 +18,6 @@ const gameCollectionsList = async (
   req: Request<{}, {}, {}, IGameCollectionUserSearchRequest>,
   res: Response
 ) => {
-  if (req.query.games !== undefined && req.query.games !== null && req.query.games.split(",").some(gid => !isValidObjectId(gid))){
-    return res.status(400).json({message: "searching for invalid game ids"});
-  }
   const search = buildGameCollectionListQuery(req.query);
   let gameCollections = await GameCollection.find(search).sort(
     buildGameCollectionListSort(req.query.sort)
@@ -29,9 +26,6 @@ const gameCollectionsList = async (
 };
 
 const singleGameCollection = async (req: Request, res: Response) => {
-  // if (!isValidObjectId(req.params.id)){
-  //   return res.status(400).json({message: "searching for invalid game collection id"});
-  // }
   const gameCollection = await GameCollection.findById(req.params.id);
   if (gameCollection === null) {
     return res.sendStatus(404);
@@ -62,9 +56,6 @@ const addGameCollection = async (req: Request, res: Response) => {
 
   let createdGameCollection = mapToDbGameCollection(req.body);
 
-  if (createdGameCollection.games.length !== 0 && createdGameCollection.games.some(gid => !isValidObjectId(gid))){
-    return res.status(400).json({message: "trying to use invalid game ids"});
-  }
   const requestedGames = createdGameCollection.games;
   let games = await Game.find({ _id: { $in: requestedGames } });
   if (games.length != requestedGames.length) {

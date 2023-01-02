@@ -42,9 +42,6 @@ const addGame = async (req: Request, res: Response) => {
     return res.json({ message: "game with the same name already exists" });
   }
 
-  const gameWithLargestId = await Game.find({}).sort({ _id: -1 }).limit(1);
-  const currentId = (gameWithLargestId.length !== 0 && gameWithLargestId.at(0)._id + 1) || 1;
-
   let createdGame = mapToDbGame(req.body);
 
   const requestedPlatforms = createdGame.platforms;
