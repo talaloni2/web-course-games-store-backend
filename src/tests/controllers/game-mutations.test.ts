@@ -267,6 +267,15 @@ test("Delete game", async () => {
     })
     .expect(200);
 
+  var createdCartResponse = await request(app)
+    .post("/carts")
+    .set("content-type", "application/json")
+    .send({
+      name: uuid(),
+      games: [{ id: createResponse.body.id, amount: 1 }],
+    })
+    .expect(200);
+
   var gameCollectionBeforeGameDelete = await request(app)
     .get(`/gameCollections/${createdGameCollectionResponse.body.id}`)
     .set("content-type", "application/json")
@@ -276,6 +285,14 @@ test("Delete game", async () => {
     createResponse.body.id,
   ]);
 
+  var cartBeforeGameDelete = await request(app)
+    .get(`/carts/${createdCartResponse.body.id}`)
+    .set("content-type", "application/json")
+    .expect(200);
+
+  expect(cartBeforeGameDelete.body.games.length).toEqual(1);
+  expect(cartBeforeGameDelete.body.games[0].id).toEqual(createResponse.body.id);
+
   await request(app).delete(`/games/${createResponse.body.id}`).expect(200);
 
   var gameCollectionAfterGameDelete = await request(app)
@@ -284,6 +301,13 @@ test("Delete game", async () => {
     .expect(200);
 
   expect(gameCollectionAfterGameDelete.body.games).toEqual([]);
+
+  var cartAfterGameDelete = await request(app)
+    .get(`/carts/${createdCartResponse.body.id}`)
+    .set("content-type", "application/json")
+    .expect(200);
+
+  expect(cartAfterGameDelete.body.games).toEqual([]);
 });
 
 test("Forbid create game with non existing platform", async () => {
