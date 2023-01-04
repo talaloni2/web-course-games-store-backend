@@ -7,4 +7,6 @@ export default interface IGameUserSearchRequest {
     availabilityMax?: undefined | number,
     platforms?: undefined | string,
     sort?: undefined | string,
+    page?: number,
+    size?: number,
 }

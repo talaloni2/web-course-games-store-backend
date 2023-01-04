@@ -20,9 +20,12 @@ const platformsList = async (
   res: Response
 ) => {
   const search = buildPlatformListQuery(req.query);
-  let platforms = await Platform.find(search).sort(
-    buildPlatformListSort(req.query.sort)
-  );
+  const page = req.query.page || 0;
+  const size = req.query.size || 10;
+  let platforms = await Platform.find(search)
+    .sort(buildPlatformListSort(req.query.sort))
+    .skip(page * size)
+    .limit(size);
   res.json(mapToPlatformsListResponse(platforms));
 };
 

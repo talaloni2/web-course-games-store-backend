@@ -22,7 +22,12 @@ const gamesList = async (
   res: Response
 ) => {
   const search = buildGameListQuery(req.query);
-  let games = await Game.find(search).sort(buildGameListSort(req.query.sort));
+  const page = req.query.page || 0;
+  const size = req.query.size || 10;
+  let games = await Game.find(search)
+    .sort(buildGameListSort(req.query.sort))
+    .skip(page * size)
+    .limit(size);
   res.json(mapToGamesListResponse(games));
 };
 
@@ -157,7 +162,9 @@ const deleteGameReferenceFromCollections = async (req: Request) => {
     listContainseOneOrMore(req.params.id, "games")[0]
   );
   collectionsContainingGame.forEach(async (col) => {
-    col.games = col.games.filter((gameId) => gameId.toString() !== req.params.id);
+    col.games = col.games.filter(
+      (gameId) => gameId.toString() !== req.params.id
+    );
     await col.save();
   });
 };
@@ -167,7 +174,9 @@ const deleteGameReferenceFromCarts = async (req: Request) => {
     listContainseOneOrMore(req.params.id, "'games.id'")[0]
   );
   collectionsContainingGame.forEach(async (col) => {
-    col.games = col.games.filter((game) => game.id.toString() !== req.params.id);
+    col.games = col.games.filter(
+      (game) => game.id.toString() !== req.params.id
+    );
     await col.save();
   });
 };

@@ -4,4 +4,6 @@ export default interface IPlatformUserSearchRequest {
   alternativeName?: string;
   abbreviation?: string;
   sort?: string;
+  page?: number;
+  size?: number;
 }

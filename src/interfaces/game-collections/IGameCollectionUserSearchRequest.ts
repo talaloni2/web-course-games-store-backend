@@ -3,4 +3,6 @@ export default interface IGameCollectionUserSearchRequest {
   name?: string;
   games?: string;
   sort?: string;
+  page?: number;
+  size?: number;
 }

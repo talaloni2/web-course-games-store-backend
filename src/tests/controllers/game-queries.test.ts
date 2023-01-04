@@ -181,3 +181,42 @@ test("Search game forbid invalid platform ids", async () => {
     .set("content-type", "application/json")
     .expect(200);
 });
+
+test("search games with pagination", async () => {
+  for (let i = 0; i < 20; i++) {
+    await request(app)
+      .post("/games")
+      .set("content-type", "application/json")
+      .send({ name: uuid() })
+      .expect(200);
+  }
+  const defaultPaginationResponse = await request(app)
+    .get(`/games`)
+    .set("content-type", "application/json")
+    .expect(200);
+  expect(defaultPaginationResponse.body.length).toEqual(10);
+
+  const paginationResponseWithOnlySize = await request(app)
+    .get(`/games?size=3`)
+    .set("content-type", "application/json")
+    .expect(200);
+  expect(paginationResponseWithOnlySize.body.length).toEqual(3);
+
+  const paginationResponseWithOnlyPage = await request(app)
+    .get(`/games?page=1`)
+    .set("content-type", "application/json")
+    .expect(200);
+  expect(paginationResponseWithOnlyPage.body.length).toEqual(10);
+  expect(paginationResponseWithOnlyPage.body).not.toEqual(
+    defaultPaginationResponse.body
+  );
+
+  const paginationResponseWithPageAndSize = await request(app)
+    .get(`/games?page=1&size=2`)
+    .set("content-type", "application/json")
+    .expect(200);
+  expect(paginationResponseWithPageAndSize.body.length).toEqual(2);
+  expect(paginationResponseWithPageAndSize.body.slice(0)).toEqual(
+    defaultPaginationResponse.body.slice(2, 4)
+  );
+});
