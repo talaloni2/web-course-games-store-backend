@@ -5,6 +5,7 @@ import upload from "../middleware/upload";
 
 import { Request, Response } from "express";
 import { GridFSBucket } from "mongodb";
+import sharp from "sharp";
 
 const baseUrl = filesURL;
 
@@ -59,15 +60,22 @@ const getListFiles = async (req: Request, res: Response) => {
   }
 };
 
-const download = async (req: Request, res: Response) => {
+const download = async (req: Request<{name}, {}, {}, {height, width}>, res: Response) => {
   try {
     const bucket = new GridFSBucket(database.db, {
       bucketName: imgBucket,
     });
+    const height: number = parseInt(req.query.height, 10) || 300;
+    const width: number = parseInt(req.query.width, 10) || 300;
 
-    let downloadStream = bucket.openDownloadStreamByName(req.params.name);
+    var transformer = sharp().resize(width, height, {
+      fit: sharp.fit.fill,
+    });
+    let downloadStream = bucket
+      .openDownloadStreamByName(req.params.name)
+      .pipe(transformer);
 
-    downloadStream.on("data", function (data) {
+    downloadStream.on("data", async function (data) {
       return res.status(200).write(data);
     });
 
@@ -85,8 +93,4 @@ const download = async (req: Request, res: Response) => {
   }
 };
 
-export {
-  uploadFiles,
-  getListFiles,
-  download,
-};
+export { uploadFiles, getListFiles, download };
