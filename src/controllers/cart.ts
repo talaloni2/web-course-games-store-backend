@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
-import mongoose from "mongoose";
 import { Cart } from "../models/cart";
-import { Game, IGame } from "../models/game";
+import { Game } from "../models/game";
 import {
   mapToDbCart,
   mapToSingleCartResponse,
