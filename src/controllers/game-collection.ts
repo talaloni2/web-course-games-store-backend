@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { isValidObjectId } from "mongoose";
 import IGameCollectionUserSearchRequest from "../interfaces/game-collections/IGameCollectionUserSearchRequest";
 import { Game } from "../models/game";
 import { GameCollection } from "../models/game-collection";
@@ -19,9 +18,12 @@ const gameCollectionsList = async (
   res: Response
 ) => {
   const search = buildGameCollectionListQuery(req.query);
-  let gameCollections = await GameCollection.find(search).sort(
-    buildGameCollectionListSort(req.query.sort)
-  );
+  const page = req.query.page || 0;
+  const size = req.query.size || 10;
+  let gameCollections = await GameCollection.find(search)
+    .sort(buildGameCollectionListSort(req.query.sort))
+    .skip(page * size)
+    .limit(size);
   res.json(mapToGameCollectionsListResponse(gameCollections));
 };
 
