@@ -15,6 +15,7 @@ import { Request, Response } from "express";
 import IGameUserSearchRequest from "../interfaces/games/IGameUserSearchRequest";
 import { GameCollection } from "../models/game-collection";
 import { listContainseOneOrMore } from "../utils/request-builder";
+import { Cart } from "../models/cart";
 
 const gamesList = async (
   req: Request<{}, {}, {}, IGameUserSearchRequest>,
@@ -145,6 +146,7 @@ const deleteGame = async (req: Request, res: Response) => {
   }
 
   await deleteGameReferenceFromCollections(req);
+  await deleteGameReferenceFromCarts(req);
 
   await gameToDelete.delete();
   return res.sendStatus(200);
@@ -156,6 +158,16 @@ const deleteGameReferenceFromCollections = async (req: Request) => {
   );
   collectionsContainingGame.forEach(async (col) => {
     col.games = col.games.filter((gameId) => gameId.toString() !== req.params.id);
+    await col.save();
+  });
+};
+
+const deleteGameReferenceFromCarts = async (req: Request) => {
+  var collectionsContainingGame = await Cart.find(
+    listContainseOneOrMore(req.params.id, "'games.id'")[0]
+  );
+  collectionsContainingGame.forEach(async (col) => {
+    col.games = col.games.filter((game) => game.id.toString() !== req.params.id);
     await col.save();
   });
 };

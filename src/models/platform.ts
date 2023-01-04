@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 interface IPlatform {
-  _id?: string;
+  _id?: mongoose.Types.ObjectId;
   name: string;
   platform_logo: string;
   alternative_name: string;
@@ -20,5 +20,5 @@ const platformSchema = new mongoose.Schema<IPlatform>(
   },
 );
 
-const Platform = mongoose.model("platforms", platformSchema);
+const Platform = mongoose.model("Platform", platformSchema);
 export {Platform, IPlatform};

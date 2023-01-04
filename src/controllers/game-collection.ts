@@ -46,14 +46,6 @@ const addGameCollection = async (req: Request, res: Response) => {
     });
   }
 
-  const gameCollectionWithLargestId = await GameCollection.find({})
-    .sort({ _id: -1 })
-    .limit(1);
-  const currentId =
-    (gameCollectionWithLargestId.length !== 0 &&
-      gameCollectionWithLargestId.at(0)._id + 1) ||
-    1;
-
   let createdGameCollection = mapToDbGameCollection(req.body);
 
   const requestedGames = createdGameCollection.games;
