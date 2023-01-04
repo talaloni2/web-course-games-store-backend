@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 // total_rating, name, platforms, screenshots, slug, summary, cover, alternative_names
 interface IGameCollection {
-    _id?: string,
+    _id?: mongoose.Types.ObjectId,
     name: string,
     games: string[],
 }
@@ -16,5 +16,5 @@ const gameCollectionSchema = new mongoose.Schema<IGameCollection>(
   },
 );
 
-const GameCollection = mongoose.model("gameCollections", gameCollectionSchema);
+const GameCollection = mongoose.model("GameCollection", gameCollectionSchema);
 export {GameCollection, IGameCollection};

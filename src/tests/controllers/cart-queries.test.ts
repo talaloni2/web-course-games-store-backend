@@ -2,6 +2,20 @@ import mongoose from "mongoose";
 import request from "supertest";
 import { v4 as uuid } from "uuid";
 import { app } from "../../server";
+import { closeServerResources } from "./utils";
+
+jest.mock("../../config/db", () => ({
+  get url() {
+    const testConfig = require("../tests-config");
+    return `mongodb://${testConfig.mongoDockerConfig.host}:${testConfig.mongoDockerConfig.port}/`;
+  },
+  database: "web_course_final_project",
+  imgBucket: "photos",
+}));
+
+afterAll(async () => {
+  await closeServerResources();
+});
 
 test("Get cart", async () => {
   const game = await request(app)

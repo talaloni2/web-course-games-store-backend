@@ -1,7 +1,7 @@
-import mongoose, { mongo } from "mongoose";
+import mongoose from "mongoose";
 import request from "supertest";
 import { v4 as uuid } from "uuid";
-import { app, server } from "../../server";
+import { app } from "../../server";
 import { closeServerResources } from "./utils";
 
 jest.mock("../../config/db", () => ({

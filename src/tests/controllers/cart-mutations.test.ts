@@ -1,7 +1,21 @@
-import { app } from "../../server";
+import mongoose from "mongoose";
 import request from "supertest";
 import { v4 as uuid } from "uuid";
-import mongoose from "mongoose";
+import { app } from "../../server";
+import { closeServerResources } from "./utils";
+
+jest.mock("../../config/db", () => ({
+  get url() {
+    const testConfig = require("../tests-config");
+    return `mongodb://${testConfig.mongoDockerConfig.host}:${testConfig.mongoDockerConfig.port}/`;
+  },
+  database: "web_course_final_project",
+  imgBucket: "photos",
+}));
+
+afterAll(async () => {
+  await closeServerResources();
+});
 
 test("Create cart", async () => {
   const createdCart = await request(app)
@@ -72,7 +86,7 @@ async function assertGamesPartOfCartAfterUpdate(
     .set("content-type", "application/json")
     .expect(200);
 
-  expect(cart.body.games).toEqual(gameIds);
+  expect(cart.body.games.map(g => g.id)).toEqual(gameIds);
 }
 
 test("Forbid create cart with non existing game", async () => {

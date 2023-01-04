@@ -3,7 +3,7 @@ import mongoose, { Schema, model, mongo } from "mongoose";
 // total_rating, name, platforms, screenshots, slug, summary, cover, alternative_names
 
 interface IGame {
-  _id?: string;
+  _id?: mongoose.Types.ObjectId;
   totalRating: number;
   name: string;
   platforms: string[];
@@ -30,5 +30,5 @@ const gameSchema = new Schema<IGame>(
   },
 );
 
-const Game = model("games", gameSchema);
+const Game = model("Game", gameSchema);
 export { Game, IGame };

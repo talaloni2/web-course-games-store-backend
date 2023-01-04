@@ -1,4 +1,5 @@
 import { Express } from "express";
+import initCartEndpoints from "./cart";
 import initFileEndpoints from "./file";
 import initGameEndpoints from "./game";
 import initGameCollectionEndpoints from "./game-collection";
@@ -9,6 +10,7 @@ const routes = (app: Express) => {
   initPlatformEndpoints(app);
   initGameEndpoints(app);
   initGameCollectionEndpoints(app);
+  initCartEndpoints(app);
 };
 
 export default routes;
