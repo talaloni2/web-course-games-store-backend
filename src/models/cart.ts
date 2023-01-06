@@ -15,6 +15,7 @@ const cartGameSchema = new mongoose.Schema<ICartGame>(
 
 interface ICart {
   _id?: mongoose.Types.ObjectId;
+  userId: string;
   games: ICartGame[];
 }
 

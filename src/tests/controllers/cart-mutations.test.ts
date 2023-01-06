@@ -4,6 +4,17 @@ import { v4 as uuid } from "uuid";
 import { app } from "../../server";
 import { closeServerResources } from "./utils";
 
+const mockUserId = "mockUUID";
+
+jest.mock("../../middleware/firebase", () => ({
+  get getAuth() {
+    const verifyIdToken = jest.fn();
+    verifyIdToken.mockReturnValue({ uid: mockUserId });
+    return () => ({ verifyIdToken });
+  },
+  app: jest.fn(),
+}));
+
 jest.mock("../../config/db", () => ({
   get url() {
     const testConfig = require("../tests-config");
@@ -86,7 +97,7 @@ async function assertGamesPartOfCartAfterUpdate(
     .set("content-type", "application/json")
     .expect(200);
 
-  expect(cart.body.games.map(g => g.id)).toEqual(gameIds);
+  expect(cart.body.games.map((g) => g.id)).toEqual(gameIds);
 }
 
 test("Forbid create cart with non existing game", async () => {

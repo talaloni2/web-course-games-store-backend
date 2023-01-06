@@ -2,9 +2,19 @@ import mongoose from "mongoose";
 import path from "path";
 import request from "supertest";
 import { v4 as uuid } from "uuid";
-import { app, server } from "../../server";
-import { database } from "../../middleware/db";
+import { app } from "../../server";
 import { closeServerResources } from "./utils";
+
+const mockUserId = "mockUUID";
+
+jest.mock("../../middleware/firebase", () => ({
+  get getAuth() {
+    const verifyIdToken = jest.fn();
+    verifyIdToken.mockReturnValue({ uid: mockUserId });
+    return () => ({ verifyIdToken });
+  },
+  app: jest.fn(),
+}));
 
 jest.mock("../../config/db", () => ({
   get url() {
