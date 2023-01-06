@@ -19,12 +19,14 @@ const mapToSingleCartResponse = (
 const mapToDbCart = (cart: ICreateCartRequest): ICart => {
   return {
     games: cart.games.filter((g) => g.amount !== 0),
+    userId: "mock",
   };
 };
 
 const mapToDbCartUpdate = (cart: IUpdateCartRequest): ICart => {
   return {
     games: cart.games.filter((g) => g.amount !== 0),
+    userId: "mock",
   };
 };
 
