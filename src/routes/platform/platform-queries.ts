@@ -1,10 +1,14 @@
 import { Express } from "express";
-import { param } from "express-validator";
+import { param, query } from "express-validator";
 import { platformsList, singlePlatform } from "../../controllers/platform";
-import { ensureValidThenExecute } from "../utils";
+import { ensureValidThenExecute, searchQueryMongoIdValidator } from "../utils";
 
 const routes = (app: Express) => {
-  app.get("/platforms", platformsList);
+  app.get(
+    "/platforms",
+    query("id").custom(searchQueryMongoIdValidator),
+    ensureValidThenExecute(platformsList)
+  );
 
   app.get(
     "/platforms/:id",

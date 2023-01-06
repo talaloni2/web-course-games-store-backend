@@ -6,7 +6,10 @@ import { ensureValidThenExecute, searchQueryMongoIdValidator } from "../utils";
 const routes = (app: Express) => {
   app.get(
     "/games",
-    query("platforms").custom(searchQueryMongoIdValidator),
+    [
+      query("platforms").custom(searchQueryMongoIdValidator),
+      query("id").custom(searchQueryMongoIdValidator),
+    ],
     ensureValidThenExecute(gamesList)
   );
   app.get(

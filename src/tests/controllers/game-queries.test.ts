@@ -1,8 +1,7 @@
-import mongoose, { mongo } from "mongoose";
+import mongoose, { Mongoose } from "mongoose";
 import request from "supertest";
 import { v4 as uuid } from "uuid";
-import { app, server } from "../../server";
-import { database } from "../../middleware/db";
+import { app } from "../../server";
 import { closeServerResources } from "./utils";
 
 jest.mock("../../config/db", () => ({
@@ -219,4 +218,43 @@ test("search games with pagination", async () => {
   expect(paginationResponseWithPageAndSize.body.slice(0)).toEqual(
     defaultPaginationResponse.body.slice(2, 4)
   );
+});
+
+test("Search Games multiple ids", async () => {
+  const firstGame = await request(app)
+    .post("/games")
+    .set("content-type", "application/json")
+    .send({
+      name: uuid(),
+    })
+    .expect(200);
+
+  const secondGame = await request(app)
+    .post("/games")
+    .set("content-type", "application/json")
+    .send({
+      name: uuid(),
+    })
+    .expect(200);
+
+  const searchResponseWithResults = await request(app)
+    .get(`/games?id=${firstGame.body.id},${secondGame.body.id}`)
+    .set("content-type", "application/json")
+    .expect(200);
+
+  expect(searchResponseWithResults.body.length).toEqual(2);
+
+  const searchResponseWithOneResult = await request(app)
+    .get(`/games?id=${firstGame.body.id}`)
+    .set("content-type", "application/json")
+    .expect(200);
+
+  expect(searchResponseWithOneResult.body.length).toEqual(1);
+
+  const searchResponseWithoutResults = await request(app)
+    .get(`/games?id=${new mongoose.Types.ObjectId()}`)
+    .set("content-type", "application/json")
+    .expect(200);
+
+  expect(searchResponseWithoutResults.body.length).toEqual(0);
 });
