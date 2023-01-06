@@ -71,6 +71,12 @@ const download = async (req: Request<{name}, {}, {}, {height, width}>, res: Resp
     var transformer = sharp().resize(width, height, {
       fit: sharp.fit.fill,
     });
+    
+    var cursor = database.collection(imgBucket + ".files").find({filename: req.params.name});
+    if ((await cursor.toArray()).length == 0){
+      return res.sendStatus(404);
+    }
+
     let downloadStream = bucket
       .openDownloadStreamByName(req.params.name)
       .pipe(transformer);
