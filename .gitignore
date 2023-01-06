@@ -37,3 +37,4 @@ Footer
 dist
 resources/seed-data/images
 resources/seed-data/images/*
+src/middleware/private-key.json
