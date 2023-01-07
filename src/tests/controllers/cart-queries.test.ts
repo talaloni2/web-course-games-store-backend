@@ -4,6 +4,17 @@ import { v4 as uuid } from "uuid";
 import { app } from "../../server";
 import { closeServerResources } from "./utils";
 
+var mockUserId = "mockUUID";
+
+jest.mock("../../middleware/firebase", () => ({
+  get getAuth() {
+    const verifyIdToken = jest.fn();
+    verifyIdToken.mockReturnValue({ uid: mockUserId });
+    return () => ({ verifyIdToken });
+  },
+  app: jest.fn(),
+}));
+
 jest.mock("../../config/db", () => ({
   get url() {
     const testConfig = require("../tests-config");
@@ -12,6 +23,10 @@ jest.mock("../../config/db", () => ({
   database: "web_course_final_project",
   imgBucket: "photos",
 }));
+
+beforeEach(() => {
+  mockUserId = uuid();
+});
 
 afterAll(async () => {
   await closeServerResources();
@@ -64,4 +79,25 @@ test("Get cart not enough available copies", async () => {
 
   expect(cartResponse.body.games.length).toEqual(1);
   expect(cartResponse.body.games[0].isAvailable).toEqual(false);
+});
+
+test("Cannot get other users carts", async () => {
+  const createdCart = await request(app)
+    .post(`/carts`)
+    .set("content-type", "application/json")
+    .send({
+      games: [],
+    })
+    .expect(200);
+  
+    await request(app)
+    .get(`/carts/${createdCart.body.id}`)
+    .set("content-type", "application/json")
+    .expect(200);
+  mockUserId = uuid();
+
+  await request(app)
+    .get(`/carts/${createdCart.body.id}`)
+    .set("content-type", "application/json")
+    .expect(404);
 });

@@ -10,7 +10,7 @@ import {
 
 const buildGameListQuery = (params: IGameUserSearchRequest) => {
   let search = {
-    _id: params.id,
+    _id: params.id && params.id.split(","),
     name: contains(params.name),
     price: between(params.priceMin, params.priceMax),
     availability: between(params.availabilityMin, params.availabilityMax),

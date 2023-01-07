@@ -4,6 +4,21 @@ import { v4 as uuid } from "uuid";
 import { app } from "../../server";
 import { closeServerResources } from "./utils";
 
+var mockUserId;
+
+jest.mock("../../middleware/firebase", () => ({
+  get getAuth() {
+    const verifyIdToken = jest.fn();
+    verifyIdToken.mockReturnValue({ uid: mockUserId });
+    return () => ({ verifyIdToken });
+  },
+  app: jest.fn(),
+}));
+
+beforeEach(() => {
+  mockUserId = uuid();
+});
+
 jest.mock("../../config/db", () => ({
   get url() {
     const testConfig = require("../tests-config");
@@ -86,7 +101,7 @@ async function assertGamesPartOfCartAfterUpdate(
     .set("content-type", "application/json")
     .expect(200);
 
-  expect(cart.body.games.map(g => g.id)).toEqual(gameIds);
+  expect(cart.body.games.map((g) => g.id)).toEqual(gameIds);
 }
 
 test("Forbid create cart with non existing game", async () => {
@@ -184,4 +199,27 @@ test("Update game in cart to 0 amount will result game removal", async () => {
     .set("content-type", "application/json")
     .expect(200);
   expect(cart.body.games.length).toEqual(0);
+});
+
+test("Cannot create more than one cart for the same user", async () => {
+  const game = await request(app)
+    .post("/games")
+    .set("content-type", "application/json")
+    .send({ name: uuid(), availability: 1 })
+    .expect(200);
+  await request(app)
+    .post(`/carts`)
+    .set("content-type", "application/json")
+    .send({
+      games: [{ id: game.body.id, amount: 1 }],
+    })
+    .expect(200);
+
+  await request(app)
+    .post(`/carts`)
+    .set("content-type", "application/json")
+    .send({
+      games: [{ id: game.body.id, amount: 1 }],
+    })
+    .expect(400);
 });
