@@ -1,5 +1,5 @@
 import { header, param, query } from "express-validator";
-import { getCart } from "../../controllers/cart";
+import { getCart, getCartByUser } from "../../controllers/cart";
 import { Express } from "express";
 import { ensureValidThenExecute, searchQueryMongoIdValidator } from "../utils";
 import validateToken from "../utils/token-validator";
@@ -10,6 +10,11 @@ const routes = (app: Express) => {
     [param("id").isMongoId(), header("Authorization").custom(validateToken)],
     ensureValidThenExecute(getCart)
   );
+  app.get(
+    "/carts",
+    [header("Authorization").custom(validateToken)],
+    ensureValidThenExecute(getCartByUser)
+  )
 };
 
 export default routes;

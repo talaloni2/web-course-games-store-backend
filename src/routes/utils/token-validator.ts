@@ -2,7 +2,6 @@ import { getAuth } from "../../middleware/firebase";
 
 const validateToken = async (authorization: string, { req }) => {
   try {
-    const auth = getAuth();
     const verifiedToken = await getAuth().verifyIdToken(authorization);
     req.headers.userId = verifiedToken.uid;
     return Promise.resolve();

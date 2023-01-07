@@ -21,6 +21,7 @@ interface ICart {
 
 const cartCollectionSchema = new mongoose.Schema<ICart>({
   games: [cartGameSchema],
+  userId: mongoose.Schema.Types.String,
 });
 
 const Cart = mongoose.model("Cart", cartCollectionSchema);

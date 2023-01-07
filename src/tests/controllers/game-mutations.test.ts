@@ -5,7 +5,7 @@ import { v4 as uuid } from "uuid";
 import { app } from "../../server";
 import { closeServerResources } from "./utils";
 
-const mockUserId = "mockUUID";
+var mockUserId: string;
 
 jest.mock("../../middleware/firebase", () => ({
   get getAuth() {
@@ -15,6 +15,10 @@ jest.mock("../../middleware/firebase", () => ({
   },
   app: jest.fn(),
 }));
+
+beforeEach(() => {
+  mockUserId = uuid();
+});
 
 jest.mock("../../config/db", () => ({
   get url() {

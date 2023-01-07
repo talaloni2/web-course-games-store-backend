@@ -1,6 +1,6 @@
 import ICreateCartRequest from "../../interfaces/carts/ICreateCartRequest";
 import IUpdateCartRequest from "../../interfaces/carts/IUpdateCartRequest";
-import { ICart } from "../../models/cart";
+import { ICart, ICartGame } from "../../models/cart";
 
 const mapToSingleCartResponse = (
   cart: ICart,
@@ -16,17 +16,16 @@ const mapToSingleCartResponse = (
   };
 };
 
-const mapToDbCart = (cart: ICreateCartRequest): ICart => {
+const mapToDbCart = (cart: ICreateCartRequest, userId): ICart => {
   return {
     games: cart.games.filter((g) => g.amount !== 0),
-    userId: "mock",
+    userId: userId,
   };
 };
 
-const mapToDbCartUpdate = (cart: IUpdateCartRequest): ICart => {
+const mapToDbCartUpdate = (cart: IUpdateCartRequest): {games: ICartGame[]} => {
   return {
-    games: cart.games.filter((g) => g.amount !== 0),
-    userId: "mock",
+    games: cart.games.filter((g) => g.amount !== 0)
   };
 };
 
