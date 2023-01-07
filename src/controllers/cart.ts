@@ -8,7 +8,10 @@ import {
 } from "./dto-mappers/cart-mappers";
 
 const getCart = async (req: Request, res: Response) => {
-  const cart = await Cart.findById(req.params.id);
+  const cart = await Cart.findOne({
+    _id: req.params.id,
+    userId: req.headers.userId,
+  });
   if (cart === null) {
     res.sendStatus(404);
     return;
