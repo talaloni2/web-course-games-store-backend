@@ -1,3 +1,3 @@
-const port: number = 3000;
+const port: number = 3002;
 const filesURL: string = `http://localhost:${port}/files/`;
 export { port, filesURL };
