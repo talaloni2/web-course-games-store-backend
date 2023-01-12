@@ -5,4 +5,5 @@ export default interface IGameSortRequest {
     name?: undefined | SortOrder,
     price?: undefined | SortOrder,
     availability?: undefined | SortOrder,
+    totalRating?: undefined | SortOrder,
 }
