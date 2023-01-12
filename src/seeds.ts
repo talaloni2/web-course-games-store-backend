@@ -64,6 +64,7 @@ const insertGames = async (
       screenshots: g.screenshots && g.screenshots.map((sc) => `${sc}.jpg`),
       cover: `${g.cover}.jpg`,
       platforms: g.platforms && g.platforms.map((p) => platformsMapping.get(p)),
+      totalRating: (g.total_rating && g.total_rating.toFixed(2)) || getRandomInt(0, 10000) / 100,
     };
   });
   await Game.insertMany(games);

@@ -19,17 +19,17 @@ const buildGameListQuery = (params: IGameUserSearchRequest) => {
   return filterUndefined(search);
 };
 
-const buildGameListSort = (sortFields: string): {[key: string]: SortOrder} => {
+const buildGameListSort = (
+  sortFields: string
+): { [key: string]: SortOrder } => {
   let sortRequest = sort(sortFields);
   return {
     _id: sortRequest.id,
     name: sortRequest.name,
     price: sortRequest.price,
     availability: sortRequest.availability,
+    totalRating: sortRequest.totalRating,
   };
 };
 
-export {
-  buildGameListQuery,
-  buildGameListSort,
-};
+export { buildGameListQuery, buildGameListSort };
