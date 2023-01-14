@@ -92,4 +92,14 @@ const updateCart = async (req: Request, res: Response) => {
   return res.json({ id: cart._id });
 };
 
-export { addCart, getCart, updateCart, getCartByUser };
+const deleteCart = async (req: Request, res: Response) => {
+  var cartToDelete = await Cart.findById(req.params.id);
+  if (cartToDelete === null) {
+    return res.sendStatus(404);
+  }
+
+  await cartToDelete.delete();
+  return res.sendStatus(200);
+};
+
+export { addCart, getCart, updateCart, getCartByUser, deleteCart };
