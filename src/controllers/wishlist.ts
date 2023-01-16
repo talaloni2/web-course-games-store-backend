@@ -92,4 +92,20 @@ const updateWishlist = async (req: Request, res: Response) => {
     return res.json({id: wishlist._id});
 };
 
-export {addWishlist, getWishlist, updateWishlist, getWishlistByUser};
+
+const deleteWishlistByUser = async (req: Request, res: Response) => {
+    const wishlist = await Wishlist.findOne({userId: req.headers.userId});
+    if (wishlist === null) {
+        res.sendStatus(404);
+        return;
+    }
+    try {
+        res.json(await Wishlist.deleteOne({userId: req.headers.userId}));
+    } catch (err) {
+        res.sendStatus(500);
+    }
+
+
+};
+
+export {addWishlist, getWishlist, updateWishlist, getWishlistByUser, deleteWishlistByUser};
