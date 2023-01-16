@@ -12,6 +12,7 @@ const buildGameListQuery = (params: IGameUserSearchRequest) => {
   let search = {
     _id: params.id && params.id.split(","),
     name: contains(params.name),
+    summary: contains(params.summary),
     price: between(params.priceMin, params.priceMax),
     availability: between(params.availabilityMin, params.availabilityMax),
     $or: listContainseOneOrMore(params.platforms, "platforms"),
