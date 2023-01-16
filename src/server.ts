@@ -4,6 +4,7 @@ import initRoutes from "./routes";
 import { port } from "./config/server";
 import "./middleware/db"; // initializing db on server startup
 import { Server } from "http";
+import { json } from "body-parser";
 
 const app = express();
 const corsOptions = {
@@ -13,6 +14,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.use(json());
 
 app.use(urlencoded({ extended: true }));
 initRoutes(app);

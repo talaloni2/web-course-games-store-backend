@@ -4,6 +4,7 @@ import initCartEndpoints from "./cart";
 import initFileEndpoints from "./file";
 import initGameEndpoints from "./game";
 import initGameCollectionEndpoints from "./game-collection";
+import initOrderEndpoints from "./order";
 import initPlatformEndpoints from "./platform";
 
 const routes = (app: Express) => {
@@ -13,6 +14,7 @@ const routes = (app: Express) => {
   initGameCollectionEndpoints(app);
   initWishlistEndpoints(app);
   initCartEndpoints(app);
+  initOrderEndpoints(app);
 };
 
 export default routes;
