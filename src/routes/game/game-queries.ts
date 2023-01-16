@@ -1,9 +1,13 @@
 import { param, query } from "express-validator";
-import { gamesList, singleGame } from "../../controllers/game";
+import {gamesList, getGamesForPromotions, singleGame} from "../../controllers/game";
 import { Express } from "express";
 import { ensureValidThenExecute, searchQueryMongoIdValidator } from "../utils";
 
 const routes = (app: Express) => {
+  app.get(
+    "/gamesForPromotions",
+    ensureValidThenExecute(getGamesForPromotions)
+  );
   app.get(
     "/games",
     [

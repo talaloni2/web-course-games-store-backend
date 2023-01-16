@@ -17,6 +17,10 @@ import { GameCollection } from "../models/game-collection";
 import { listContainseOneOrMore } from "../utils/request-builder";
 import { Cart } from "../models/cart";
 
+const getGamesForPromotions = async (req: Request, res: Response) => {
+  res.json(await Game.aggregate([{$group: {_id: "$totalRating", count: {$sum: 1}}}]).sort({_id: -1}));
+};
+
 const gamesList = async (
   req: Request<{}, {}, {}, IGameUserSearchRequest>,
   res: Response
@@ -182,6 +186,7 @@ const deleteGameReferenceFromCarts = async (req: Request) => {
 };
 
 export {
+  getGamesForPromotions,
   gamesList,
   singleGame,
   addGame,
