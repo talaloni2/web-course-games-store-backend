@@ -2,7 +2,7 @@ import { Express } from "express";
 import { body, header, param } from "express-validator";
 
 import { json } from "body-parser";
-import { addWishlist, updateWishlist } from "../../controllers/wishlist";
+import {addWishlist, deleteWishlistByUser, updateWishlist} from "../../controllers/wishlist";
 import { ensureValidThenExecute } from "../utils";
 import validateToken from "../utils/token-validator";
 
@@ -21,6 +21,12 @@ const routes = (app: Express) => {
     [param("id").isMongoId(), body("games.*.id").isMongoId(), header("Authorization").custom(validateToken)],
     jsonParser,
     ensureValidThenExecute(updateWishlist)
+  );
+
+  app.delete(
+    "/wishlists",
+    [header("Authorization").custom(validateToken)],
+    ensureValidThenExecute(deleteWishlistByUser)
   );
 };
 
