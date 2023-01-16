@@ -30,6 +30,14 @@ jest.mock("../../config/db", () => ({
   imgBucket: "photos",
 }));
 
+var mockGetCurrentTime = jest.fn();
+mockGetCurrentTime.mockReturnValue(new Date().getTime());
+jest.mock("../../utils/time-utils", () => ({
+  get nowMilliseconds() {
+    return mockGetCurrentTime;
+  },
+}));
+
 afterAll(async () => {
   await closeServerResources();
 });
@@ -79,6 +87,13 @@ test("Create order", async () => {
     .get(`/orders/${createdOrder.body.id}`)
     .set("content-type", "application/json")
     .expect(200);
+
+  const gameAfterOrder = await request(app)
+    .get(`/games/${createdGameId}`)
+    .set("content-type", "application/json")
+    .expect(200);
+
+  expect(gameAfterOrder.body.availability).toBe(1);
 });
 
 test("Create order forbid invalid delivery details", async () => {
@@ -90,6 +105,20 @@ test("Create order forbid invalid delivery details", async () => {
       cardLastDigits: "1234",
       deliveryDetails: {},
       games: [{ id: createdGameId, amount: 1 }],
+      email: mockEmailAddress,
+    })
+    .expect(400);
+});
+
+test("Create order forbid game amount more than availability", async () => {
+  const createdGameId = await createGame(2);
+  await request(app)
+    .post(`/orders`)
+    .set("content-type", "application/json")
+    .send({
+      cardLastDigits: "1234",
+      deliveryDetails: {},
+      games: [{ id: createdGameId, amount: 5 }],
       email: mockEmailAddress,
     })
     .expect(400);
@@ -191,131 +220,86 @@ test("Update order", async () => {
     })
     .expect(200);
 
-  // const updateOrder = await request(app)
-  // .put()
+  const orderBeforeUpdate = await request(app)
+    .get(`/orders/${createdOrder.body.id}`)
+    .set("content-type", "application/json")
+    .expect(200);
 
+  expect(orderBeforeUpdate.body.deliveryDetails).toEqual(mockDeliveryDetails);
+
+  const updatedDetails = { ...mockDeliveryDetails, mobile: "0542222222" };
   await request(app)
+    .put(`/orders/${createdOrder.body.id}`)
+    .set("content-type", "application/json")
+    .send({ deliveryDetails: updatedDetails })
+    .expect(200);
+
+  const orderAfterUpdate = await request(app)
+    .get(`/orders/${createdOrder.body.id}`)
+    .set("content-type", "application/json")
+    .expect(200);
+
+  expect(orderAfterUpdate.body.deliveryDetails).not.toEqual(
+    mockDeliveryDetails
+  );
+
+  const order = await request(app)
     .put(`/orders/${new mongoose.Types.ObjectId()}`)
     .send({ deliveryDetails: mockDeliveryDetails })
     .expect(404);
 });
 
-// test("Forbid create order with non existing game", async () => {
-//   await request(app)
-//     .post(`/orders`)
-//     .set("content-type", "application/json")
-//     .send({
-//       games: [{ id: new mongoose.Types.ObjectId(), amount: 1 }],
-//     })
-//     .expect(400);
+test("Delete order", async () => {
+  var createdGameId = await createGame(2);
+  const createdOrder = await request(app)
+    .post(`/orders`)
+    .set("content-type", "application/json")
+    .send({
+      cardLastDigits: "1234",
+      deliveryDetails: mockDeliveryDetails,
+      games: [{ id: createdGameId, amount: 1 }],
+      email: mockEmailAddress,
+    })
+    .expect(200);
 
-//   const createdGame = await request(app)
-//     .post(`/games`)
-//     .set("content-type", "application/json")
-//     .send({
-//       name: uuid(),
-//     })
-//     .expect(200);
+  await request(app)
+    .get(`/orders/${createdOrder.body.id}`)
+    .set("content-type", "application/json")
+    .expect(200);
 
-//   await request(app)
-//     .post(`/orders`)
-//     .set("content-type", "application/json")
-//     .send({
-//       games: [{ id: createdGame.body.id, amount: 1 }],
-//     })
-//     .expect(200);
-// });
+  await request(app)
+    .delete(`/orders/${createdOrder.body.id}`)
+    .set("content-type", "application/json")
+    .expect(200);
 
-// test("Forbid update order with non existing game", async () => {
-//   const createdOrder = await request(app)
-//     .post(`/orders`)
-//     .set("content-type", "application/json")
-//     .send({
-//       games: [],
-//     })
-//     .expect(200);
+  await request(app)
+    .get(`/orders/${createdOrder.body.id}`)
+    .set("content-type", "application/json")
+    .expect(404);
+});
 
-//   await request(app)
-//     .put(`/orders/${createdOrder.body.id}`)
-//     .set("content-type", "application/json")
-//     .send({
-//       games: [{ id: new mongoose.Types.ObjectId(), amount: 1 }],
-//     })
-//     .expect(400);
+test("Delete order forbid after more than 30 minutes", async () => {
+  var createdGameId = await createGame(2);
+  const createdOrder = await request(app)
+    .post(`/orders`)
+    .set("content-type", "application/json")
+    .send({
+      cardLastDigits: "1234",
+      deliveryDetails: mockDeliveryDetails,
+      games: [{ id: createdGameId, amount: 1 }],
+      email: mockEmailAddress,
+    })
+    .expect(200);
 
-//   const createdGame = await request(app)
-//     .post(`/games`)
-//     .set("content-type", "application/json")
-//     .send({
-//       name: uuid(),
-//       availability: 1,
-//     })
-//     .expect(200);
+  await request(app)
+    .get(`/orders/${createdOrder.body.id}`)
+    .set("content-type", "application/json")
+    .expect(200);
 
-//   await request(app)
-//     .put(`/orders/${createdOrder.body.id}`)
-//     .set("content-type", "application/json")
-//     .send({
-//       games: [{ id: createdGame.body.id, amount: 1 }],
-//     })
-//     .expect(200);
-// });
+  mockGetCurrentTime.mockReturnValue(new Date().getTime() + 45 * 60000);
 
-// test("Update game in order to 0 amount will result game removal", async () => {
-//   const game = await request(app)
-//     .post("/games")
-//     .set("content-type", "application/json")
-//     .send({ name: uuid(), availability: 1 })
-//     .expect(200);
-
-//   const createdOrder = await request(app)
-//     .post(`/orders`)
-//     .set("content-type", "application/json")
-//     .send({
-//       games: [{ id: game.body.id, amount: 1 }],
-//     })
-//     .expect(200);
-
-//   var order = await request(app)
-//     .get(`/orders/${createdOrder.body.id}`)
-//     .set("content-type", "application/json")
-//     .expect(200);
-//   expect(order.body.games.length).toEqual(1);
-
-//   await request(app)
-//     .put(`/orders/${createdOrder.body.id}`)
-//     .set("content-type", "application/json")
-//     .send({
-//       games: [{ id: game.body.id, amount: 0 }],
-//     })
-//     .expect(200);
-
-//   order = await request(app)
-//     .get(`/orders/${createdOrder.body.id}`)
-//     .set("content-type", "application/json")
-//     .expect(200);
-//   expect(order.body.games.length).toEqual(0);
-// });
-
-// test("Cannot create more than one order for the same user", async () => {
-//   const game = await request(app)
-//     .post("/games")
-//     .set("content-type", "application/json")
-//     .send({ name: uuid(), availability: 1 })
-//     .expect(200);
-//   await request(app)
-//     .post(`/orders`)
-//     .set("content-type", "application/json")
-//     .send({
-//       games: [{ id: game.body.id, amount: 1 }],
-//     })
-//     .expect(200);
-
-//   await request(app)
-//     .post(`/orders`)
-//     .set("content-type", "application/json")
-//     .send({
-//       games: [{ id: game.body.id, amount: 1 }],
-//     })
-//     .expect(400);
-// });
+  await request(app)
+    .delete(`/orders/${createdOrder.body.id}`)
+    .set("content-type", "application/json")
+    .expect(400);
+});

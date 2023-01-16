@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import mongoose from "mongoose";
 import { Game, IGame } from "../models/game";
-import { Order } from "../models/order";
+import { IOrder, Order } from "../models/order";
+import { nowMilliseconds } from "../utils/time-utils";
 import {
   mapToDbOrder,
   mapToDbOrderUpdate,
@@ -31,7 +32,7 @@ const getOrdersByUser = async (req: Request, res: Response) => {
 
 const addOrder = async (req: Request, res: Response) => {
   const requestedGameIds = req.body.games.map((g) => g.id);
-  let games: IGame[] = [];
+  let games = [];
   try {
     games = await Game.find({ _id: { $in: requestedGameIds } });
     if (games.length != requestedGameIds.length) {
@@ -49,13 +50,20 @@ const addOrder = async (req: Request, res: Response) => {
       res.status(400);
       return res.send("Some games aren't available at the requested amount");
     }
+
+    const gameIdToOrderedAmount: Map<string, number> = new Map(req.body.games.map((g) => [g.id, g.amount]));
+    await Promise.all(games.map(async (game) => {
+      game.availability = game.availability - gameIdToOrderedAmount.get(game._id.toString());
+      await game.save();
+    }))
+    
   } catch (err) {
     console.log(err);
     return res.sendStatus(500);
   }
 
-  const gameIdToPrice: Map<mongoose.Types.ObjectId, number> = new Map(
-    games.map((g) => [g._id, g.price])
+  const gameIdToPrice: Map<string, number> = new Map(
+    games.map((g) => [g._id.toString(), g.price])
   );
 
   let createdOrder = mapToDbOrder(req.body, req.headers.userId, gameIdToPrice);
@@ -86,6 +94,12 @@ const deleteOrder = async (req: Request, res: Response) => {
   var orderToDelete = await Order.findById(req.params.id);
   if (orderToDelete === null) {
     return res.sendStatus(404);
+  }
+
+  const nowMS = nowMilliseconds();
+  if (nowMilliseconds() > (orderToDelete.createdAt.getTime() + 30 * 60000)){
+    res.status(400);
+    return res.json({"message": "Cannot delete order because more than 30 minutes had passed since it was placed"});
   }
 
   await orderToDelete.delete();

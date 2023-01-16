@@ -1,7 +1,6 @@
-import mongoose from "mongoose";
 import ICreateOrderRequest from "../../interfaces/orders/ICreateOrderRequest";
 import IUpdateOrderRequest from "../../interfaces/orders/IUpdateOrderRequest";
-import { IOrder, IOrderDeliveryDetails, IOrderGame } from "../../models/order";
+import { IOrder, IOrderDeliveryDetails } from "../../models/order";
 
 const mapToSingleOrderResponse = (order: IOrder) => {
   return {
@@ -13,16 +12,17 @@ const mapToSingleOrderResponse = (order: IOrder) => {
     })),
     email: order.email,
     deliveryDetails: order.deliveryDetails,
+    createdAt: order.createdAt.toISOString(),
   };
 };
 
 const mapToDbOrder = (
   order: ICreateOrderRequest,
   userId,
-  gameIdToPrice: Map<mongoose.Types.ObjectId, number>
+  gameIdToPrice: Map<string, number>
 ): IOrder => {
   return {
-    games: order.games.map(g => ({...g, buyPrice: gameIdToPrice.get(g.id)})),
+    games: order.games.map(g => ({...g, buyPrice: gameIdToPrice.get(g.id.toString())})),
     userId: userId,
     email: order.email,
     deliveryDetails: order.deliveryDetails,

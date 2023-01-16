@@ -66,7 +66,6 @@ const routes = (app: Express) => {
     "/orders/:id",
     [
       param("id").isMongoId(),
-      body("games.*.id").isMongoId(),
       body("deliveryDetails").custom(validateDeliveryDetails),
       header("Authorization").custom(validateToken),
     ],

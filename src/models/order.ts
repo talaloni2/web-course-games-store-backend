@@ -43,15 +43,20 @@ interface IOrder {
   games: IOrderGame[];
   deliveryDetails: IOrderDeliveryDetails;
   cardLastDigits: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
-const orderCollectionSchema = new mongoose.Schema<IOrder>({
-  games: [orderGameSchema],
-  userId: mongoose.Schema.Types.String,
-  email: mongoose.Schema.Types.String,
-  deliveryDetails: orderDeliveryDetailsSchema,
-  cardLastDigits: mongoose.Schema.Types.String,
-});
+const orderCollectionSchema = new mongoose.Schema<IOrder>(
+  {
+    games: [orderGameSchema],
+    userId: mongoose.Schema.Types.String,
+    email: mongoose.Schema.Types.String,
+    deliveryDetails: orderDeliveryDetailsSchema,
+    cardLastDigits: mongoose.Schema.Types.String,
+  },
+  { timestamps: true }
+);
 
 const Order = mongoose.model("Order", orderCollectionSchema);
 export { IOrder, IOrderDeliveryDetails, IOrderGame, Order };
