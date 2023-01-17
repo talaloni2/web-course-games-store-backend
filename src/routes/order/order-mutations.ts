@@ -19,7 +19,7 @@ const validateDeliveryDetails = async (
   try {
     const fullNameValid =
       deliveryDetails.fullName &&
-      deliveryDetails.fullName.length > 4 &&
+      deliveryDetails.fullName.length >= 4 &&
       deliveryDetails.fullName.includes(" ");
     const mobileValid =
       deliveryDetails.mobile && /^[0-9]{10}$/.test(deliveryDetails.mobile);

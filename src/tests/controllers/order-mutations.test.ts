@@ -303,3 +303,46 @@ test("Delete order forbid after more than 30 minutes", async () => {
     .set("content-type", "application/json")
     .expect(400);
 });
+
+test("Delete order affects availability", async () => {
+  var createdGameId = await createGame(2);
+  const createdOrder = await request(app)
+    .post(`/orders`)
+    .set("content-type", "application/json")
+    .send({
+      cardLastDigits: "1234",
+      deliveryDetails: mockDeliveryDetails,
+      games: [{ id: createdGameId, amount: 1 }],
+      email: mockEmailAddress,
+    })
+    .expect(200);
+
+  await request(app)
+    .get(`/orders/${createdOrder.body.id}`)
+    .set("content-type", "application/json")
+    .expect(200);
+
+  const gameAfterOrderCreated = await request(app)
+    .get(`/games/${createdGameId}`)
+    .set("content-type", "application/json")
+    .expect(200);
+
+  expect(gameAfterOrderCreated.body.availability).toEqual(1);
+
+  await request(app)
+    .delete(`/orders/${createdOrder.body.id}`)
+    .set("content-type", "application/json")
+    .expect(200);
+
+  const gameAfterOrderDeleted = await request(app)
+    .get(`/games/${createdGameId}`)
+    .set("content-type", "application/json")
+    .expect(200);
+
+  expect(gameAfterOrderDeleted.body.availability).toEqual(2);
+
+  await request(app)
+    .get(`/orders/${createdOrder.body.id}`)
+    .set("content-type", "application/json")
+    .expect(404);
+});

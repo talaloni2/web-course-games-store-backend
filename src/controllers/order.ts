@@ -1,12 +1,11 @@
 import { Request, Response } from "express";
-import mongoose from "mongoose";
-import { Game, IGame } from "../models/game";
-import { IOrder, Order } from "../models/order";
+import { Game } from "../models/game";
+import { Order } from "../models/order";
 import { nowMilliseconds } from "../utils/time-utils";
 import {
   mapToDbOrder,
   mapToDbOrderUpdate,
-  mapToSingleOrderResponse,
+  mapToSingleOrderResponse
 } from "./dto-mappers/order-mappers";
 
 const getOrder = async (req: Request, res: Response) => {
@@ -51,12 +50,16 @@ const addOrder = async (req: Request, res: Response) => {
       return res.send("Some games aren't available at the requested amount");
     }
 
-    const gameIdToOrderedAmount: Map<string, number> = new Map(req.body.games.map((g) => [g.id, g.amount]));
-    await Promise.all(games.map(async (game) => {
-      game.availability = game.availability - gameIdToOrderedAmount.get(game._id.toString());
-      await game.save();
-    }))
-    
+    const gameIdToOrderedAmount: Map<string, number> = new Map(
+      req.body.games.map((g) => [g.id, g.amount])
+    );
+    await Promise.all(
+      games.map(async (game) => {
+        game.availability =
+          game.availability - gameIdToOrderedAmount.get(game._id.toString());
+        await game.save();
+      })
+    );
   } catch (err) {
     console.log(err);
     return res.sendStatus(500);
@@ -97,10 +100,26 @@ const deleteOrder = async (req: Request, res: Response) => {
   }
 
   const nowMS = nowMilliseconds();
-  if (nowMilliseconds() > (orderToDelete.createdAt.getTime() + 30 * 60000)){
+  if (nowMilliseconds() > orderToDelete.createdAt.getTime() + 30 * 60000) {
     res.status(400);
-    return res.json({"message": "Cannot delete order because more than 30 minutes had passed since it was placed"});
+    return res.json({
+      message:
+        "Cannot delete order because more than 30 minutes had passed since it was placed",
+    });
   }
+
+  const requestedGameIds = orderToDelete.games.map((g) => g.id.toString());
+  const games = await Game.find({ _id: { $in: requestedGameIds } });
+  const gameIdToOrderedAmount: Map<string, number> = new Map(
+    orderToDelete.games.map((g) => [g.id.toString(), g.amount])
+  );
+  await Promise.all(
+    games.map(async (game) => {
+      game.availability =
+        game.availability + gameIdToOrderedAmount.get(game._id.toString());
+      await game.save();
+    })
+  );
 
   await orderToDelete.delete();
   return res.sendStatus(200);
