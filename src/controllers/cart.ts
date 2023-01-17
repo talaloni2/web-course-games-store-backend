@@ -6,6 +6,7 @@ import {
   mapToDbCartUpdate,
   mapToSingleCartResponse,
 } from "./dto-mappers/cart-mappers";
+import { Mutex } from "async-mutex";
 
 const getCart = async (req: Request, res: Response) => {
   const cart = await Cart.findOne({
@@ -28,12 +29,16 @@ const getCart = async (req: Request, res: Response) => {
   res.json(gameResponse);
 };
 
+const mutex = new Mutex();
 const getCartByUser = async (req: Request, res: Response) => {
-  const cart = await Cart.findOne({ userId: req.headers.userId });
-  if (cart === null) {
-    res.sendStatus(404);
-    return;
-  }
+  const cart = await mutex.runExclusive(async () => {
+    var cart = await Cart.findOne({ userId: req.headers.userId });
+    if (cart === null) {
+      cart = new Cart({ userId: req.headers.userId, games: [] });
+      await cart.save();
+    }
+    return cart;
+  });
 
   let relatedGames = await Game.find({
     _id: { $in: cart.games.map((g) => g.id) },
@@ -47,29 +52,37 @@ const getCartByUser = async (req: Request, res: Response) => {
 };
 
 const addCart = async (req: Request, res: Response) => {
-  const existingCartForUser = await Cart.findOne({
-    userId: req.headers.userId,
-  });
-  if (existingCartForUser !== null) {
-    return res.status(400).send("User already have a cart");
-  }
-
-  let createdCart = mapToDbCart(req.body, req.headers.userId);
-
-  const requestedGameIds = createdCart.games.map((g) => g.id);
-  try {
-    let games = await Game.find({ _id: { $in: requestedGameIds } });
-    if (games.length != requestedGameIds.length) {
-      res.status(400);
-      return res.send("One or more specified games do not exist");
+  return await mutex.runExclusive(async () => {
+    var existingCartForUser = await Cart.findOne({
+      userId: req.headers.userId,
+    });
+    if (existingCartForUser !== null) {
+      return res.status(400).send("User already have a cart");
     }
-  } catch (err) {
-    console.log(err);
-  }
 
-  var cart = new Cart(createdCart);
-  cart = await cart.save();
-  return res.json({ id: cart._id });
+    let createdCart = mapToDbCart(req.body, req.headers.userId);
+
+    const requestedGameIds = createdCart.games.map((g) => g.id);
+    try {
+      let games = await Game.find({ _id: { $in: requestedGameIds } });
+      if (games.length != requestedGameIds.length) {
+        res.status(400);
+        return res.send("One or more specified games do not exist");
+      }
+    } catch (err) {
+      console.log(err);
+    }
+
+    var cart = new Cart(createdCart);
+    existingCartForUser = await Cart.findOne({
+      userId: req.headers.userId,
+    });
+    if (existingCartForUser !== null) {
+      return res.json({ id: cart._id });
+    }
+    cart = await cart.save();
+    return res.json({ id: cart._id });
+  });
 };
 
 const updateCart = async (req: Request, res: Response) => {
