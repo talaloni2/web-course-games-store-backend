@@ -19,6 +19,7 @@ jest.mock("../../middleware/firebase", () => ({
 
 beforeEach(() => {
   mockUserId = uuid();
+  mockGetCurrentTime.mockReturnValue(new Date().getTime());
 });
 
 jest.mock("../../config/db", () => ({

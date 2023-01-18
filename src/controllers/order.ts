@@ -5,7 +5,7 @@ import { nowMilliseconds } from "../utils/time-utils";
 import {
   mapToDbOrder,
   mapToDbOrderUpdate,
-  mapToSingleOrderResponse
+  mapToSingleOrderResponse,
 } from "./dto-mappers/order-mappers";
 
 const getOrder = async (req: Request, res: Response) => {
@@ -125,4 +125,38 @@ const deleteOrder = async (req: Request, res: Response) => {
   return res.sendStatus(200);
 };
 
-export { addOrder, getOrder, updateOrder, getOrdersByUser, deleteOrder };
+const getTotalOrders = async (req: Request, res: Response) => {
+  const totalOrdersWithSpent = await Order.aggregate([
+    {
+      $group: {
+        _id: "$userId",
+        total: {
+          $accumulator: {
+            init: "function(){return {ordersCount: 0, totalSpent: 0}}",
+            accumulate:
+              "function(state, games){const orderTotal = games.reduce((prev, game)=>prev + (game.buyPrice * game.amount), 0); return {ordersCount: state.ordersCount + 1, totalSpent:state.totalSpent + orderTotal}}",
+            accumulateArgs: ["$games"],
+            merge:
+              "function(state1, state2){return {ordersCount: state1.ordersCount + state2.ordersCount, totalSpent: state1.totalSpent + state2.totalSpent}}",
+            lang: "js",
+          },
+        },
+      },
+    },
+  ]);
+
+  const aggregatedTotalForUser = totalOrdersWithSpent.find(
+    (e) => e._id === req.headers.userId
+  ) || { ordersCount: 0, totalSpent: 0 };
+
+  res.json(aggregatedTotalForUser.total);
+};
+
+export {
+  addOrder,
+  getOrder,
+  updateOrder,
+  getOrdersByUser,
+  deleteOrder,
+  getTotalOrders,
+};
