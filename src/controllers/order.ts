@@ -1,4 +1,6 @@
 import { Request, Response } from "express";
+import { emit } from "process";
+import { database } from "../middleware/db";
 import { Game } from "../models/game";
 import { Order } from "../models/order";
 import { nowMilliseconds } from "../utils/time-utils";
@@ -126,30 +128,21 @@ const deleteOrder = async (req: Request, res: Response) => {
 };
 
 const getTotalOrders = async (req: Request, res: Response) => {
-  const totalOrdersWithSpent = await Order.aggregate([
-    {
-      $group: {
-        _id: "$userId",
-        total: {
-          $accumulator: {
-            init: "function(){return {ordersCount: 0, totalSpent: 0}}",
-            accumulate:
-              "function(state, games){const orderTotal = games.reduce((prev, game)=>prev + (game.buyPrice * game.amount), 0); return {ordersCount: state.ordersCount + 1, totalSpent:state.totalSpent + orderTotal}}",
-            accumulateArgs: ["$games"],
-            merge:
-              "function(state1, state2){return {ordersCount: state1.ordersCount + state2.ordersCount, totalSpent: state1.totalSpent + state2.totalSpent}}",
-            lang: "js",
-          },
-        },
-      },
-    },
-  ]);
+  const totalOrdersWithSpent = await database
+    .collection("orders")
+    .mapReduce(
+      /*map*/ "function() { const games = this.games; const orderTotal = games.reduce((t, game)=>t + (game.amount * game.buyPrice), 0); emit(this.userId, orderTotal); }",
+      /*reduce*/ "function(key, values) {return Array.sum(values)}",
+      { out: { inline: 1 }, jsMode: true }
+    );
 
   const aggregatedTotalForUser = totalOrdersWithSpent.find(
     (e) => e._id === req.headers.userId
-  ) || { ordersCount: 0, totalSpent: 0 };
+  ) || { value: 0 };
 
-  res.json(aggregatedTotalForUser.total);
+  const ordersCount = await Order.count({ userId: req.headers.userId });
+
+  res.json({ ordersCount, totalSpent: aggregatedTotalForUser.value });
 };
 
 export {
