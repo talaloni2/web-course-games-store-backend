@@ -16,6 +16,7 @@ const buildGameListQuery = (params: IGameUserSearchRequest) => {
     price: between(params.priceMin, params.priceMax),
     availability: between(params.availabilityMin, params.availabilityMax),
     $or: listContainseOneOrMore(params.platforms, "platforms"),
+    cover: { $ne: "undefined.jpg" }
   };
   return filterUndefined(search);
 };
